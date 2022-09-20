@@ -1,0 +1,4 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('base-side-page',{attrs:{"title":_vm.$t('bill.text_244'),"icon":"res-cloudaccount","res-name":_vm.detailData.name,"current-tab":_vm.params.windowData.currentTab,"loaded":_vm.loaded,"tabs":_vm.detailTabs},on:{"cancel":_vm.cancelSidePage,"tab-change":_vm.handleTabChange}},[_c(_vm.params.windowData.currentTab,{tag:"component",attrs:{"res-id":_vm.data.id,"data":_vm.detailData,"on-manager":_vm.onManager}})],1)}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

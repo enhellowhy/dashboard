@@ -1,0 +1,4 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('a-form',{attrs:{"form":_vm.form.fc}},[_c('a-form-item',_vm._b({attrs:{"label":_vm.$t('bill.text_188')}},'a-form-item',_vm.formItemLayout,false),[_c('span',[_vm._v(_vm._s(_vm.$t('bill.text_87')))])]),_c('priod',{attrs:{"decorators":_vm.decorators,"timeOptions":_vm.timeOptions,"durationOptions":_vm.durationOptions,"formItemLayout":_vm.formItemLayout}})],1)],1)}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

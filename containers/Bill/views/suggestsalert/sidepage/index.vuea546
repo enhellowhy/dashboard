@@ -1,0 +1,4 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('base-side-page',{attrs:{"title":_vm.$t('bill.text_181'),"icon":"res-suggestsalert","res-name":_vm.detailData.res_name,"actions":_vm.params.actions,"current-tab":_vm.params.windowData.currentTab,"tabs":_vm.detailTabs,"loaded":_vm.loaded},on:{"cancel":_vm.cancelSidePage,"tab-change":_vm.handleTabChange},scopedSlots:_vm._u([{key:"actions",fn:function(){return [_c('actions',{attrs:{"options":_vm.singleActions,"row":_vm.detailData,"button-type":"link","button-size":"small"}})]},proxy:true}])},[_c(_vm.params.windowData.currentTab,{tag:"component",attrs:{"data":_vm.detailData,"res-id":_vm.data.id,"id":_vm.listId,"on-manager":_vm.onManager},on:{"side-page-trigger-handle":_vm.sidePageTriggerHandle,"init-side-page-tab":_vm.initSidePageTab,"single-refresh":_vm.singleRefresh}})],1)}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

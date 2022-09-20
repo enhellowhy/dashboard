@@ -1,0 +1,4 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('page-header',{attrs:{"title":_vm.$t('bill.text_181'),"tabs":_vm.cloudEnvOptions,"current-tab":_vm.cloudEnv},on:{"update:currentTab":function($event){_vm.cloudEnv=$event},"update:current-tab":function($event){_vm.cloudEnv=$event}}}),_c('page-body',[_c('suggest-alert-list',{attrs:{"id":_vm.listId,"cloud-env":_vm.cloudEnv}})],1)],1)}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

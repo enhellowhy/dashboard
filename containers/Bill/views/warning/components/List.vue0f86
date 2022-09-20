@@ -1,0 +1,4 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('page-list',{attrs:{"show-tag-columns":"","list":_vm.list,"columns":_vm.columns,"single-actions":_vm.singleActions,"group-actions":_vm.groupActions}})}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

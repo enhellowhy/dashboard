@@ -1,0 +1,4 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('a-form',{attrs:{"form":_vm.form.fc}},[_c('rule',{ref:"ruleDescForm",attrs:{"ruleType":_vm.ruleType,"form":_vm.form.fc,"decorators":_vm.decorators,"formItemLayout":_vm.formItemLayout}}),_c('priod',{attrs:{"decorators":_vm.decorators,"timeOptions":_vm.timeOptions,"durationOptions":_vm.durationOptions,"formItemLayout":_vm.formItemLayout}})],1)],1)}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

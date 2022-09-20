@@ -1,0 +1,23 @@
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('a-form-model',_vm._b({ref:"ruleDescForm",attrs:{"model":_vm.ruleDescForm}},'a-form-model',_vm.formItemLayoutWithOutLabel,false),[_vm._l((_vm.ruleDescForm.ruleData),function(item,index){return _c('a-form-model-item',_vm._b({key:item.key,attrs:{"label":index === 0 ? _vm.$t('bill.text_188') : '',"required":true}},'a-form-model-item',index === 0 ? _vm.formItemLayout : {},false),[_c('a-row',{attrs:{"type":"flex","justify":"start","gutter":4}},[(index !== 0)?_c('a-col',{attrs:{"span":4}},[_c('a-form-model-item',{attrs:{"prop":'ruleData.' + index + '.operator',"rules":{
+            required: true,
+            message: ' ',
+            trigger: 'blur',
+          }}},[_c('a-select',{attrs:{"loading":_vm.loading.operator,"placeholder":_vm.$t('bill.text_199')},model:{value:(item.operator),callback:function ($$v) {_vm.$set(item, "operator", $$v)},expression:"item.operator"}},_vm._l((_vm.options.operators),function(operator,index){return _c('a-select-option',{key:index,attrs:{"value":operator.key}},[_vm._v(_vm._s(operator.label))])}),1)],1)],1):_vm._e(),_c('a-col',{attrs:{"span":6}},[_c('a-form-model-item',{attrs:{"prop":'ruleData.' + index + '.measurement',"rules":{
+            required: true,
+            message: _vm.$t('bill.text_200'),
+            trigger: 'blur',
+          }}},[_c('a-select',{attrs:{"loading":_vm.loading.measurement,"dropdownMatchSelectWidth":false,"placeholder":_vm.$t('bill.text_201')},on:{"change":function($event){return _vm.fetchFeild(item)}},model:{value:(item.measurement),callback:function ($$v) {_vm.$set(item, "measurement", $$v)},expression:"item.measurement"}},_vm._l((_vm.options.measurements),function(measurement,index){return _c('a-select-option',{key:index,attrs:{"value":measurement.key}},[_vm._v(_vm._s(measurement.label))])}),1)],1)],1),_c('a-col',{attrs:{"span":6}},[_c('a-form-model-item',{attrs:{"prop":'ruleData.' + index + '.field',"rules":{
+            required: true,
+            message: _vm.$t('bill.text_202'),
+            trigger: 'blur',
+          }}},[_c('a-select',{attrs:{"loading":_vm.loading.field,"dropdownMatchSelectWidth":false,"placeholder":_vm.$t('bill.text_203')},model:{value:(item.field),callback:function ($$v) {_vm.$set(item, "field", $$v)},expression:"item.field"}},_vm._l((item.fields),function(field,index){return _c('a-select-option',{key:index,attrs:{"value":field.key}},[_vm._v(_vm._s(field.label))])}),1)],1)],1),_c('a-col',{attrs:{"span":3}},[_c('a-form-model-item',{attrs:{"prop":'ruleData.' + index + '.eval_type',"rules":{
+            required: true,
+            message: ' ',
+            trigger: 'blur',
+          }}},[_c('a-select',{attrs:{"loading":_vm.loading.eval_type},model:{value:(item.eval_type),callback:function ($$v) {_vm.$set(item, "eval_type", $$v)},expression:"item.eval_type"}},_vm._l((_vm.options.eval_types),function(eval_type,index){return _c('a-select-option',{key:index,attrs:{"value":eval_type.key}},[_vm._v(_vm._s(eval_type.label))])}),1)],1)],1),_c('a-col',{attrs:{"span":4}},[_c('a-form-model-item',{attrs:{"prop":'ruleData.' + index + '.threshold',"rules":[
+            { required: true, message: _vm.$t('bill.text_204'), trigger: 'blur' },
+            { validator: function (rule, value, callback){_vm.checkThreshold(rule, value, callback)}, trigger: 'change' }
+          ]}},[_c('a-input',{attrs:{"placeholder":_vm.$t('bill.text_205')},model:{value:(item.threshold),callback:function ($$v) {_vm.$set(item, "threshold", $$v)},expression:"item.threshold"}})],1)],1),_c('a-col',{attrs:{"span":1}},[(_vm.ruleDescForm.ruleData.length > 1)?_c('a-icon',{staticClass:"dynamic-delete-button",attrs:{"type":"minus-circle-o","disabled":_vm.ruleDescForm.ruleData.length === 1},on:{"click":function($event){return _vm.remove(item)}}}):_vm._e()],1)],1)],1)}),_c('a-form-model-item',_vm._b({},'a-form-model-item',_vm.formItemLayoutWithOutLabel,false),[_c('a-button',{attrs:{"type":"primary","shape":"circle","icon":"plus","size":"small"},on:{"click":_vm.add}}),_c('a-button',{attrs:{"type":"link"},on:{"click":_vm.add}},[_vm._v(_vm._s(_vm.$t('bill.text_206')))])],1)],2)}
+var staticRenderFns = []
+
+export { render, staticRenderFns }

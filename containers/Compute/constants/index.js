@@ -27,7 +27,8 @@ export const NETWORK_OPTIONS_MAP = {
     key: 'manual',
   },
   schedtag: {
-    label: i18n.t('compute.text_3'),
+    // label: i18n.t('compute.text_3'),
+    label: i18n.t('compute.network.env'),
     key: 'schedtag',
     t: 'compute.text_3',
   },
@@ -174,7 +175,8 @@ export const SCHED_POLICY_OPTIONS_MAP = {
   //   key: 'cloudprovider',
   // },
   schedtag: {
-    label: i18n.t('compute.text_3'),
+    // label: i18n.t('compute.text_3'),
+    label: i18n.t('compute.network.env'),
     key: 'schedtag',
     t: 'compute.text_3',
   },
@@ -362,6 +364,18 @@ export const LOGIN_TYPES_MAP = {
   password: {
     label: i18n.t('compute.text_35'),
     key: 'password',
+  },
+}
+
+// 反亲和组选择配置
+export const GROUPS_TYPES_MAP = {
+  new: {
+    label: i18n.t('compute.group.new'),
+    key: 'new',
+  },
+  specify: {
+    label: i18n.t('compute.group.specify'),
+    key: 'specify',
   },
 }
 

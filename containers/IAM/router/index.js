@@ -17,6 +17,7 @@ import NotifyTopic from '@IAM/views/notify-topic'
 import Robots from '@IAM/views/robots'
 import NotifyConfigs from '@IAM/views/notifyconfig'
 import NotifyConfigCreate from '@IAM/views/notifyconfig/create'
+import WorkflowConfig from '@IAM/views/workflow-config'
 import Contact from '@IAM/views/contact'
 import Layout from '@/layouts/RouterView'
 import i18n from '@/locales'
@@ -261,6 +262,45 @@ export default {
             },
           ],
         },
+      ],
+    },
+    {
+      meta: {
+        label: i18n.t('system.text_12'),
+      },
+      submenus: [
+        {
+          path: '/processmanage',
+          meta: {
+            label: i18n.t('system.text_13'),
+            permission: 'process_manage_list',
+            // hidden: () => !hasServices('itsm'),
+            hidden: () => !hasServices('workflow') || !store.getters.isAdminMode,
+          },
+          component: Layout,
+          children: [
+            {
+              name: 'WorkflowConfig',
+              path: '',
+              component: WorkflowConfig,
+            },
+          ],
+        },
+        // {
+        //   path: '/thirdparty',
+        //   meta: {
+        //     label: i18n.t('system.text_14'),
+        //     hidden: () => !hasServices('itsm') || !store.getters.isAdminMode,
+        //   },
+        //   component: Layout,
+        //   children: [
+        //     {
+        //       name: 'ThirdParty',
+        //       path: '',
+        //       component: ThirdParty,
+        //     },
+        //   ],
+        // },
       ],
     },
     {

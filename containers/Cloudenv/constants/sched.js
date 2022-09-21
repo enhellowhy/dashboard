@@ -7,6 +7,12 @@ export const STRATEGY_CN = {
   '': i18n.t('cloudenv.text_4'),
 }
 
+export const CLUSTER_STRATEGY = {
+  usage: i18n.t('cloudenv.clusters.drs.strategy.usage'),
+  assigned: i18n.t('cloudenv.clusters.drs.strategy.assigned'),
+}
+
 export const RES_TYPES = { hosts: i18n.t('cloudenv.text_5'), storages: i18n.t('cloudenv.text_6'), networks: i18n.t('cloudenv.text_7') }
 
 export const STRATEGY_OPT = (() => Object.entries(STRATEGY_CN).map(val => ({ label: val[1], key: val[0] })))()
+export const CLUSTER_STRATEGY_OPT = (() => Object.entries(CLUSTER_STRATEGY).map(val => ({ label: val[1], key: val[0] })))()

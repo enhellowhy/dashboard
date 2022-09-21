@@ -40,7 +40,7 @@ import LbProperties from './Properties'
 import LbMonitor from './Monitor'
 
 export default {
-  name: 'LbSidePage',
+  name: 'nLbSidePage',
   components: {
     LbDetail,
     Actions,

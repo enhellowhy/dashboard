@@ -735,7 +735,8 @@ export const PERMISSION = {
    */
   // underutilizedinstances_list: ['monitor', 'underutilizedinstances', 'list'],
   // 工单管理相关操作
-  process_manage_list: ['itsm', 'process-definitions', 'list'],
+  // process_manage_list: ['itsm', 'process-definitions', 'list'],
+  process_manage_list: ['workflow', 'workflow_process_definitions', 'list'],
   /**
    * 主机组
    */

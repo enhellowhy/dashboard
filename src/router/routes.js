@@ -7,6 +7,7 @@ import NoProjectStatus from '@/views/no-project/Status'
 import Workflow from '@/views/workflow'
 import WorkflowTechnicalSupport from '@/views/workflow-technical-support'
 import Clouduser from '@/views/clouduser'
+import User from '@/views/user-info'
 import WorkflowSuccess from '@/views/workflow/success'
 import WorkflowError from '@/views/workflow/error'
 import Layout from '@/layouts/RouterView'
@@ -37,6 +38,11 @@ const routes = [
         component: WorkflowTechnicalSupportBrowse,
       },
     ],
+  },
+  {
+    name: 'User',
+    path: '/user',
+    component: User,
   },
   {
     name: 'Clouduser',

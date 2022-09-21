@@ -23,7 +23,7 @@ import WindowsMixin from '@/mixins/windows'
 import expectStatus from '@/constants/expectStatus'
 
 export default {
-  name: 'BackendUpdateWeightDialog',
+  name: 'nBackendUpdateWeightDialog',
   components: {
   },
   mixins: [DialogMixin, WindowsMixin],
@@ -58,7 +58,7 @@ export default {
   },
   computed: {
     maxWeight () {
-      const w100Providers = ['aliyun', 'huawei', 'qcloud', 'aws']
+      const w100Providers = ['aliyun', 'huawei', 'qcloud', 'aws', 'onecloud']
       let maxWeight = 256
       const val = this.params.data[0]
       if (val && val.provider) {

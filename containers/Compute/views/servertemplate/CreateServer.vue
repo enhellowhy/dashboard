@@ -128,7 +128,8 @@ export default {
         project_domain: this.project_domain,
       }
       // this._getProjectDomainInfo(variables) // !!! project_domain 暂时不加，因为后端可以从token里面获取
-      return new this.$Manager('process-instances', 'v1')
+      // return new this.$Manager('process-instances', 'v1')
+      return new this.$Manager('workflow_process_instances', 'v1')
         .create({ data: { variables } })
         .then(() => {
           this.$message.success(this.$t('compute.text_1045', [params.generate_name]))

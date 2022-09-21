@@ -33,6 +33,7 @@
         :decorator="decorator.networkSchedtag"
         :isBonding="isBonding"
         :schedtag-params="schedtagParams"
+        :schedtagRequireOpt="schedtagRequireOpt"
         :limit="form.fi.capability.max_nic_count" />
     </a-form-item>
   </div>
@@ -112,6 +113,11 @@ export default {
     },
     allowNetworkTypes: {
       type: Array,
+      default: () => ([]),
+    },
+    schedtagRequireOpt: {
+      type: Array,
+      default: () => ([]),
     },
     showVpc: {
       type: Boolean,
@@ -174,6 +180,9 @@ export default {
         }
         this.form.fc.setFieldsValue(value)
         this.networkComponent = value.networkType === NETWORK_OPTIONS_MAP.default.key ? '' : 'config'
+        if (value.networkType === NETWORK_OPTIONS_MAP.schedtag.key) {
+          this.networkComponent = value.networkType
+        }
       }
     },
     async hypervisor (val, oldVal) {

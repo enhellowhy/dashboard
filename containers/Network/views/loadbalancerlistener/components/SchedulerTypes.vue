@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: 'LbSchedulerType',
+  name: 'nLbSchedulerType',
   props: {
     decorators: {
       type: Object,

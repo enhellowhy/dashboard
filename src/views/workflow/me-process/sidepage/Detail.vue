@@ -22,6 +22,7 @@ import DomainQuotaMixin from '@/views/workflow/mixins/domainQuota'
 import PriceMixin from '@/views/workflow/mixins/price'
 import ProcessHistory from '@/views/workflow/components/ProcessHistory'
 import ProcessList from '@/views/workflow/components/ProcessList'
+// import BpmProcessList from '@/views/workflow/components/BpmProcessList'
 import ServerConfigList from '@/views/workflow/components/ServerConfig'
 import DeleteServers from '@/views/workflow/components/DeleteServers'
 import {
@@ -177,36 +178,37 @@ export default {
         })
     },
     getProcessInstanceData (processInstanceInfo) {
-      if (this.proccessDefinitionKey !== WORKFLOW_TYPES.CUSTOMER_SERVICE) {
-        processInstanceInfo.log.unshift({
-          activity_name: this.$t('common_377'),
-          task_assignee_name: processInstanceInfo.variables && processInstanceInfo.variables.initiator_name,
-          end_time: processInstanceInfo.start_time,
-          task: {
-            local_variables: {
-              comment: processInstanceInfo.variables.description,
-            },
-            // comments: [{ full_message: processInstanceInfo.variables.description }]
-          },
-        })
-      }
+      // if (this.proccessDefinitionKey !== WORKFLOW_TYPES.CUSTOMER_SERVICE) {
+      //   processInstanceInfo.log.unshift({
+      //     activity_name: this.$t('common_377'),
+      //     task_assignee_name: processInstanceInfo.variables && processInstanceInfo.variables.initiator_name,
+      //     end_time: processInstanceInfo.start_time,
+      //     task: {
+      //       local_variables: {
+      //         comment: processInstanceInfo.variables.description,
+      //       },
+      //       // comments: [{ full_message: processInstanceInfo.variables.description }]
+      //     },
+      //   })
+      // }
       this.processInstanceInfo = processInstanceInfo
-      const processList = []
-      processInstanceInfo.definition.forEach((item) => {
-        processList.push({
-          title: item.activity_name,
-          assignees: item.activity_instance.map((v) => {
-            return v.task_assignee_name
-          }),
-        })
-      })
-      if (this.proccessDefinitionKey === WORKFLOW_TYPES.APPLY_MACHINE || this.proccessDefinitionKey === WORKFLOW_TYPES.APPLY_SERVER_CHANGECONFIG) {
-        processList.push({
-          title: this.$t('common_378'),
-          assignees: [this.$t('common_379')],
-        })
-      }
-      this.processList = processList
+      // const processList = []
+      // processInstanceInfo.definition.forEach((item) => {
+      //   processList.push({
+      //     title: item.activity_name,
+      //     assignees: item.activity_instance.map((v) => {
+      //       return v.task_assignee_name
+      //     }),
+      //   })
+      // })
+      // if (this.proccessDefinitionKey === WORKFLOW_TYPES.APPLY_MACHINE || this.proccessDefinitionKey === WORKFLOW_TYPES.APPLY_SERVER_CHANGECONFIG) {
+      //   processList.push({
+      //     title: this.$t('common_378'),
+      //     assignees: [this.$t('common_379')],
+      //   })
+      // }
+      // this.processList = processList
+      this.processList = processInstanceInfo.log
     },
     initProcessHistorys () {
       const processHistory = {
@@ -223,10 +225,10 @@ export default {
       this.extraInfo.push(processHistory)
     },
     initProcessList () {
-      this.processList.unshift({
-        title: this.$t('common_377'),
-        assignees: this.processInstanceInfo.variables && this.processInstanceInfo.variables.initiator_name,
-      })
+      // this.processList.unshift({
+      //   title: this.$t('common_377'),
+      //   assignees: this.processInstanceInfo.variables && this.processInstanceInfo.variables.initiator_name,
+      // })
       const processList = {
         title: this.$t('common_381'),
         field: 'processList',

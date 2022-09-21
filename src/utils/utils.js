@@ -11,6 +11,8 @@ import { getLanguage } from '@/utils/common/cookie'
 let tIndex = 0
 
 export const UNITS = ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
+// export const ONE_UNITS = ['个', '十', '百', '千', '万']
+export const TEN_THOUSAND_UNITS = ['个', '万', '亿', '兆', '京']
 
 export function camel2Words (camel) {
   let tmp = ''
@@ -52,6 +54,25 @@ export function uuid (len, radix) {
 }
 
 class Sizestr {
+  tenthousandstr (sz, unit, base, precision = 2, end = TEN_THOUSAND_UNITS[TEN_THOUSAND_UNITS.length - 1]) {
+    if (!sz) return '0'
+    const nsz = this.normalizeTenThousand(sz, unit, base)
+    if (nsz < base) {
+      return '' + nsz
+    }
+    let nbase = base
+    if (end === TEN_THOUSAND_UNITS[0]) {
+      return '' + sz + TEN_THOUSAND_UNITS[0]
+    }
+    for (let i = 1; i < TEN_THOUSAND_UNITS.length; i++) {
+      nbase *= base
+      if (nsz < nbase || TEN_THOUSAND_UNITS[i] === end) {
+        return '' + this.round(nsz * base / nbase, precision) + TEN_THOUSAND_UNITS[i]
+      }
+    }
+    return 'NaN'
+  }
+
   sizestr (sz, unit, base, precision = 2, end = UNITS[UNITS.length - 1]) {
     if (!sz) return '0B'
     const nsz = this.normalizeSize(sz, unit, base)
@@ -129,6 +150,24 @@ class Sizestr {
     return sz * this.unitBase(unit, base)
   }
 
+  unitTenThousand (unit, base) {
+    if (!unit) {
+      return base
+    }
+    let unitbase = 1
+    for (let i = 0; i < TEN_THOUSAND_UNITS.length; i++) {
+      if (unit === TEN_THOUSAND_UNITS[i]) {
+        return unitbase
+      }
+      unitbase *= base
+    }
+    return Math.NaN
+  }
+
+  normalizeTenThousand (sz, unit, base) {
+    return sz * this.unitTenThousand(unit, base)
+  }
+
   numScale (num) {
     if (parseInt(num) === 0) {
       return 0
@@ -168,6 +207,7 @@ class Sizestr {
 }
 const sizestrInstance = new Sizestr()
 
+export const tenthousandstr = sizestrInstance.tenthousandstr.bind(sizestrInstance) // -> 12G  4.5T
 export const sizestr = sizestrInstance.sizestr.bind(sizestrInstance) // -> 12G  4.5T
 export const sizestrWithUnit = sizestrInstance.sizestrWithUnit.bind(sizestrInstance) // -> 12 GB   4.5 TB
 export const sizeToDesignatedUnit = sizestrInstance.sizeToDesignatedUnit.bind(sizestrInstance) // -> 12 GB   4.5 TB
@@ -290,6 +330,27 @@ export const autoComputeUnit = (series, sourceUnit = 'bps', base = 1000) => { //
   }
 }
 
+export const autoComputeUnitWithMaxValue = (sourceUnit = 'bps', base = 1000, maxValue) => { // 单位自动缩进
+  let unit = 'b'
+  const maxValueStr = sizestr(maxValue, 'B', base)
+  console.log(maxValueStr, base)
+  unit = maxValueStr.slice(-1) // 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'
+  let scaleIndex = UNITS.findIndex(val => val === unit.charAt(0))
+  scaleIndex = scaleIndex || UNITS[UNITS.length - 1]
+  scaleIndex = scaleIndex < 0 ? 0 : scaleIndex
+  const scale = Math.pow(base, scaleIndex)
+  if (unit.toLowerCase() === 'b') {
+    unit = 'b'
+  } else {
+    unit += 'b'
+  }
+  if (sourceUnit === 'bps') unit += '/s'
+  console.log(unit, scale)
+  return { // 主要作用是 改变 values(单位缩进), 加入当前单位 unit
+    scale,
+    unit,
+  }
+}
 /**
  * @description 美化作用：把 【133Bps】 这种字符串分离成 【133 Bps】
  * @param {String} value 要分离单位的字符串，如：11Kbps

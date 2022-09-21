@@ -8,6 +8,19 @@ export const statusMap = function (pdk) {
       text: pdk === WORKFLOW_TYPES.CUSTOMER_SERVICE ? i18n.t('common_439') : i18n.t('common_440'),
       color: '#f6a100',
     },
+    PENDING: {
+      text: i18n.t('common_440'),
+      color: '#f6a100',
+      // color: '#7ed321',
+    },
+    CREATING: {
+      text: i18n.t('common.resources.creating'),
+      color: '#f6a100',
+    },
+    CHANGING: {
+      text: i18n.t('common.resources.changing'),
+      color: '#f6a100',
+    },
     COMPLETED: {
       text: i18n.t('common_441'),
       color: '#7ed321',
@@ -21,6 +34,18 @@ export const statusMap = function (pdk) {
       color: '#f6a100',
     },
     CUSTOM_DOING: {
+      text: i18n.t('common_443'),
+      color: '#f6a100',
+    },
+    INIT: {
+      text: i18n.t('common_443'),
+      color: '#f6a100',
+    },
+    SUBMIT_FAIL: {
+      text: i18n.t('common_443'),
+      color: '#f6a100',
+    },
+    SUBMITTING: {
       text: i18n.t('common_443'),
       color: '#f6a100',
     },

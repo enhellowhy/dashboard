@@ -28,7 +28,7 @@ import DialogMixin from '@/mixins/dialog'
 import WindowsMixin from '@/mixins/windows'
 
 export default {
-  name: 'LoadbalancerclusterCreateDialog',
+  name: 'nLoadbalancerclusterCreateDialog',
   components: {
     CloudregionZone,
   },

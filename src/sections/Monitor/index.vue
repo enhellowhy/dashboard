@@ -107,17 +107,20 @@ export default {
             groupByKey = getGroupByKey(tags, val.constants.groupBy)
           }
 
-          const row = {
-            name: '',
-            xData: [],
-            yData: [],
-          }
-          item.points.forEach(point => {
-            columns.forEach((column, i) => {
+          item.columns.forEach((column, i) => {
+            const row = {
+              name: '',
+              xData: [],
+              yData: [],
+            }
+            item.points.forEach(point => {
+            // item.columns.forEach((column, i) => {
               if (column === 'time') {
                 const momentObj = this.$moment(point[i])
-                const time = momentObj._isAMomentObject ? momentObj.format(this.timeFormatStr) : point[0]
-                row.xData.push(time)
+                const time = momentObj._isAMomentObject ? momentObj.format(this.timeFormatStr) : point[-1]
+                rows.forEach(row => {
+                  row.xData.push(time)
+                })
               } else {
                 const format = val.constants.format || '0.00' // 默认是保留小数点后两位
                 if (groupByKey.length !== 0) {
@@ -128,8 +131,10 @@ export default {
                 row.yData.push(numerify(point[i], format))
               }
             })
+            if (column !== 'time') {
+              rows.push(row)
+            }
           })
-          rows.push(row)
         })
 
         const unit = _.get(val.series, '[0].unit') || val.constants.unit || ''

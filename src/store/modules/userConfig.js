@@ -22,6 +22,7 @@ export default {
       try {
         const { key } = payload
         const res = await http.get(`/v1/parameters/${key}`)
+        // console.log('v1/parametersssssssssssssssssss')
         await commit('UPDATE', { key: 'info', value: { [key]: res.data } })
         return Promise.resolve(res.data)
       } catch (err) {

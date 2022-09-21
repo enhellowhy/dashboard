@@ -177,7 +177,9 @@ module.exports = {
     port: 8080,
     proxy: {
       '/api': {
-        target: 'https://127.0.0.1:3000',
+        // target: 'https://127.0.0.1:3000',
+        target: 'https://127.0.0.1:30300',
+        // target: 'https://192.168.9.244',
         ws: true,
         changeOrigin: true,
         proxyTimeout: PROXY_TIMEOUT,

@@ -38,6 +38,7 @@ import SnapshotPolicy from '@Compute/views/snapshotpolicy'
 import ScalingGroup from '@Compute/views/scaling-group'
 import ScalingGroupCreate from '@Compute/views/scaling-group/create'
 import Schedtag from '@Cloudenv/views/schedtag'
+import Cluster from '@Cloudenv/views/cluster'
 import Schedpolicy from '@Cloudenv/views/schedpolicy'
 import Dynamicschedtag from '@Cloudenv/views/dynamicschedtag'
 
@@ -554,6 +555,35 @@ export default {
               path: '',
               meta: {},
               component: SKU,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      meta: {
+        label: i18n.t('license.module.resource_managent'),
+      },
+      submenus: [
+        {
+          path: '/host-cluster',
+          meta: {
+            label: i18n.t('dictionary.hostcluster'),
+            permission: 'schedtags_list',
+            t: 'dictionary.hostcluster',
+            hidden: () => {
+              if (isScopedPolicyMenuHidden('sub_hidden_menus.schedtag')) {
+                return true
+              }
+              return !hasSetupKey(['onestack', 'openstack', 'dstack', 'zstack', 'vmware', 'public', 'private'])
+            },
+          },
+          component: Layout,
+          children: [
+            {
+              name: 'Cluster',
+              path: '',
+              component: Cluster,
             },
           ],
         },

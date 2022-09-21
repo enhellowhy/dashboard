@@ -10,6 +10,7 @@ import {
   getResourceNameTableColumn,
   getResourceProjectTableColumn,
 } from '../../utils/columns'
+const R = require('ramda')
 
 export default {
   created () {
@@ -31,6 +32,7 @@ export default {
         title: i18n.t('common_371'),
         hideField: true,
         minWidth: 80,
+        showOverflow: 'title',
         onManager: this.onManager,
         slots: {
           default: ({ row }, h) => {
@@ -53,9 +55,16 @@ export default {
         slots: {
           default: ({ row }, h) => {
             const statusObj = statusMap(row.process_definition_key)[row.state]
+            // if (statusObj) {
+            //   return [
+            //     <span style={{ color: statusObj.color }}>{statusObj.text}</span>,
+            //   ]
+            // }
             if (statusObj) {
               return [
-                <span style={{ color: statusObj.color }}>{statusObj.text}</span>,
+                <div class="d-flex">
+                  <status status={row.state} statusModule={'workflowState'}/>
+                </div>,
               ]
             }
           },
@@ -68,6 +77,14 @@ export default {
         showOverflow: 'title',
         slots: {
           default: ({ row }, h) => {
+            // let href
+            // if (process.env.NODE_ENV === 'production') { //default is process.env.NODE_ENV==='development'
+            //   href = 'https://bpm.lixiangoa.com/apps/desktop/process/app_3qedx9grhl/' + row.external_id
+            // } else {
+            //   href = 'https://bpm-test.lixiangoa.com/apps/desktop/process/app_3qedx9grhl/' + row.external_id
+            // }
+            // const href = 'https://bpm-test.lixiangoa.com/apps/desktop/process/app_3qedx9grhl/' + row.external_id
+            const href = 'https://bpm.lixiangoa.com/apps/desktop/process/app_3qedx9grhl/' + row.external_id
             if (row.variables.audit_status) {
               const statusObj = auditStatusMap(row.process_definition_key)[row.variables.audit_status]
               if (row.process_definition_key === WORKFLOW_TYPES.CUSTOMER_SERVICE) {
@@ -75,11 +92,16 @@ export default {
                   <span style="color: #f6a100;">{row.audit_state}</span>,
                 ]
               }
+              // <span style={{ color: statusObj.color }}>{statusObj.text}</span>,
               if (statusObj) {
                 return [
-                  <span style={{ color: statusObj.color }}>{statusObj.text}</span>,
+                  <span><a href={href} target="_blank" style={{ color: statusObj.color }}>{statusObj.text}</a></span>,
                 ]
               }
+            } else if (row.state === 'PENDING') {
+              return [
+                <span><a href={href} target="_blank" style="color: #f6a100;">{i18n.t('common.auditing')}</a></span>,
+              ]
             }
           },
         },
@@ -92,11 +114,20 @@ export default {
         sortable: true,
         slots: {
           default: ({ row }, h) => {
-            const bizStatus = row.variables.biz_status
-            const tooltip = <span class='ml-1'><a-tooltip title={ i18n.t('workflow.biz_field') }><a-icon type="question-circle" /></a-tooltip></span>
-            if ((row.state === 'COMPLETED' || row.state === 'CUSTOM_TODO') && bizStatus) {
+            // const bizStatus = row.variables.biz_status
+            // const tooltip = <span class='ml-1'><a-tooltip title={ i18n.t('workflow.biz_field') }><a-icon type="question-circle" /></a-tooltip></span>
+            // if ((row.state === 'COMPLETED' || row.state === 'CUSTOM_TODO') && bizStatus) {
+            //   return [
+            //     <div class="d-flex"><status status={ bizStatus } statusModule={ 'workflowBiz' } />{ bizStatus === 'fail' ? tooltip : null }</div>,
+            //   ]
+            // }
+            if (row.status === 'success' || row.status === 'fail' || row.status === 'operating') {
+              // if ((row.state === 'COMPLETED' || row.state === 'CUSTOM_TODO') && bizStatus) {
               return [
-                <div class="d-flex"><status status={ bizStatus } statusModule={ 'workflowBiz' } />{ bizStatus === 'fail' ? tooltip : null }</div>,
+                // <div class="d-flex"><status status={ bizStatus } statusModule={ 'workflowBiz' } />{ bizStatus === 'fail' ? tooltip : null }</div>,
+                <div class="d-flex">
+                  <status status={row.status} statusModule={'workflowBiz'}/>
+                </div>,
               ]
             }
             return '-'
@@ -109,20 +140,34 @@ export default {
         minWidth: 120,
         showOverflow: 'title',
         slots: {
-          default: ({ row }) => {
+          default: ({ row }, h) => {
             const assignees = []
-            if (Array.isArray(row.tasks)) {
-              row.tasks.forEach((item) => {
-                if (!item.delete_reason) {
-                  assignees.push(item.assignee_name)
-                }
+            if (R.isNil(row.log) || row.log.length === 0 || R.isNil(row.log[row.log.length - 1].task_assignee_name)) return '-'
+            if (row.log[row.log.length - 1].task_assignee_avatar.length > 1) {
+              row.log[row.log.length - 1].task_assignee_avatar.forEach((item) => {
+                assignees.push(<span><a-avatar src={item} /></span>)
               })
             } else {
-              if (row.tasks && !row.delete_reason) {
-                assignees.push(row.tasks.assignee_name)
-              }
+              assignees.push(<span><a-avatar src={row.log[row.log.length - 1].task_assignee_avatar[0]} /></span>)
+              assignees.push(<span>&nbsp;&nbsp;</span>)
+              assignees.push(<span>{row.log[row.log.length - 1].task_assignee_name[0]}</span>)
             }
-            return assignees.length > 0 ? assignees.join(',') : '-'
+            // return assignees
+            return assignees.length > 0 ? assignees : '-'
+
+            // const assignees = []
+            // if (Array.isArray(row.tasks)) {
+            //   row.tasks.forEach((item) => {
+            //     if (!item.delete_reason) {
+            //       assignees.push(item.assignee_name)
+            //     }
+            //   })
+            // } else {
+            //   if (row.tasks && !row.delete_reason) {
+            //     assignees.push(row.tasks.assignee_name)
+            //   }
+            // }
+            // return assignees.length > 0 ? assignees.join(',') : '-'
           },
         },
       },

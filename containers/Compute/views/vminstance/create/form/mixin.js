@@ -13,6 +13,7 @@ import ServerAccount from '@Compute/sections/ServerAccount'
 import SchedPolicy from '@Compute/sections/SchedPolicy'
 import Bios from '@Compute/sections/BIOS'
 import Backup from '@Compute/sections/Backup'
+import JumpServer from '@Compute/sections/JumpServer'
 import Duration from '@Compute/sections/Duration'
 import InstanceGroups from '@Compute/sections/InstanceGroups'
 import DataDisk from '@Compute/sections/DataDisk'
@@ -27,7 +28,7 @@ import HypervisorRadio from '@/sections/HypervisorRadio'
 import DomainProject from '@/sections/DomainProject'
 import { getInitialValue } from '@/utils/common/ant'
 import { IMAGES_TYPE_MAP } from '@/constants/compute'
-import { HYPERVISORS_MAP } from '@/constants'
+import { HYPERVISORS_MAP, SCHEDTAG_REQUIRE_OPTION } from '@/constants'
 import i18n from '@/locales'
 import Tag from '../components/Tag'
 import SystemDisk from '../components/SystemDisk'
@@ -65,6 +66,7 @@ export default {
     SchedPolicy,
     Bios,
     Backup,
+    JumpServer,
     DomainProject,
     Duration,
     InstanceGroups,
@@ -105,7 +107,10 @@ export default {
           dataDiskMedium: '',
           networkVpcObj: {},
         },
-        fd: { ...initFd, os: '' },
+        fd: {
+          ...initFd,
+          os: '',
+        },
       },
       decorators,
       capabilityParams: {}, // 防止 capability 反复调用，这里对当前的接口参数做记录
@@ -119,6 +124,12 @@ export default {
     }
   },
   computed: {
+    allowNetworkTypes () {
+      if (this.isServertemplate) {
+        return []
+      }
+      return ['manual']
+    },
     isServertemplate () { // 主机模板
       return this.$route.query.source === 'servertemplate'
     },
@@ -203,7 +214,7 @@ export default {
     },
     hasMeterService () { // 是否有计费的服务
       const { services } = this.$store.getters.userInfo
-      const meterService = services.find(val => val.type === 'meter')
+      const meterService = services.find(val => val.type === 'meter-li')
       if (meterService && meterService.status === true) {
         return true
       }
@@ -255,6 +266,9 @@ export default {
         ...this.scopeParams,
       }
     },
+    schedtagRequireOpt () { // 网络里指定调度标签
+      return SCHEDTAG_REQUIRE_OPTION
+    },
     policySchedtagParams () { // 高级配置里面调度策略选择 指定调度标签
       return {
         limit: 0,
@@ -295,6 +309,7 @@ export default {
     this.servertemplateM = new Manager('servertemplates', 'v2')
     this.serverskusM = new Manager('serverskus')
     this.schedulerM = new Manager('schedulers', 'v1')
+    // this.schedtagsM = new Manager('schedtags', 'v2')
     this.$bus.$on('VMGetPrice', (price) => {
       this.price = price
     })
@@ -355,7 +370,10 @@ export default {
     },
     doCreateServertemplate (genCreateData) {
       const data = genCreateData.all()
-      const { project_id, ...rest } = data
+      const {
+        project_id,
+        ...rest
+      } = data
       const templateData = {
         name: this.form.fc.getFieldValue('servertemplate_name'),
         project: project_id,
@@ -385,7 +403,8 @@ export default {
       }
       this._getProjectDomainInfo(variables)
       this.submiting = true
-      new this.$Manager('process-instances', 'v1')
+      // new this.$Manager('process-instances', 'v1')
+      new this.$Manager('workflow_process_instances', 'v1')
         .create({ data: { variables } })
         .then(() => {
           this.$message.success(i18n.t('compute.text_1045', [data.generate_name]))
@@ -399,7 +418,11 @@ export default {
     async checkCreateData (genCreateData) {
       try {
         const data = genCreateData.all()
-        const res = new this.$Manager('servers').performAction({ id: 'check-create-data', action: '', data })
+        const res = new this.$Manager('servers').performAction({
+          id: 'check-create-data',
+          action: '',
+          data,
+        })
         return res
       } catch (error) {
         this.submiting = false
@@ -410,7 +433,10 @@ export default {
       const data = genCreateData.all()
       this.submiting = true
       return new Promise((resolve, reject) => {
-        this.schedulerM.rpc({ methodname: 'DoForecast', params: data })
+        this.schedulerM.rpc({
+          methodname: 'DoForecast',
+          params: data,
+        })
           .then(res => {
             if (res.data.can_create) {
               resolve(data)
@@ -451,7 +477,12 @@ export default {
     },
     validateForm () {
       return new Promise((resolve, reject) => {
-        this.form.fc.validateFieldsAndScroll({ scroll: { alignWithTop: true, offsetTop: 100 } }, (err, values) => {
+        this.form.fc.validateFieldsAndScroll({
+          scroll: {
+            alignWithTop: true,
+            offsetTop: 100,
+          },
+        }, (err, values) => {
           if (!err) {
             resolve(values)
           } else {

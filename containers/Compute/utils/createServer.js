@@ -359,6 +359,7 @@ export const createVmDecorators = type => {
         'networkType',
         {
           initialValue: NETWORK_OPTIONS_MAP.default.key,
+          // initialValue: NETWORK_OPTIONS_MAP.manual.key,
         },
       ],
       networkConfig: {
@@ -491,6 +492,22 @@ export const createVmDecorators = type => {
         'backup',
       ],
     },
+    jumpserver: {
+      jumpserverEnable: [
+        'jumpserverEnable',
+        {
+          valuePropName: 'checked',
+          initialValue: true,
+        },
+      ],
+      jumpserver: [
+        'jumpserver',
+        {
+          // initialValue: { key: 'fd3377b7-6d4f-4ff2-8946-e05d95a545b1', label: '/CHJ-Server/私有云数据中心/北京/可用区A' },
+          initialValue: 'fd3377b7-6d4f-4ff2-8946-e05d95a545b1',
+        },
+      ],
+    },
     duration: {
       durationStandard: [
         'durationStandard',
@@ -515,6 +532,22 @@ export const createVmDecorators = type => {
       ],
       groups: [
         'groups',
+      ],
+      groupType: [
+        'groupType',
+        {
+          initialValue: 'new',
+        },
+      ],
+      groupName: [
+        'groupName',
+        {
+          validateFirst: true,
+          rules: [
+            { required: true, message: i18n.t('compute.text_210') },
+            { validator: validateForm('resourceName') },
+          ],
+        },
       ],
     },
     bill: {
@@ -625,7 +658,7 @@ export const createVmDecorators = type => {
 }
 
 const decoratorGroup = {
-  idc: ['domain', 'project', 'cloudregionZone', 'name', 'reason', 'count', 'imageOS', 'loginConfig', 'hypervisor', 'gpu', 'vcpu', 'vmem', 'sku', 'systemDisk', 'dataDisk', 'network', 'secgroup', 'schedPolicy', 'bios', 'vdi', 'vga', 'machine', 'backup', 'duration', 'groups', 'tag', 'servertemplate', 'eip', 'os_arch'],
+  idc: ['domain', 'project', 'cloudregionZone', 'name', 'reason', 'count', 'imageOS', 'loginConfig', 'hypervisor', 'gpu', 'vcpu', 'vmem', 'sku', 'systemDisk', 'dataDisk', 'network', 'secgroup', 'schedPolicy', 'bios', 'vdi', 'vga', 'machine', 'backup', 'jumpserver', 'duration', 'groups', 'tag', 'servertemplate', 'eip', 'os_arch'],
   public: ['domain', 'project', 'name', 'count', 'imageOS', 'reason', 'loginConfig', 'vcpu', 'vmem', 'sku', 'systemDisk', 'dataDisk', 'network', 'schedPolicy', 'bill', 'eip', 'secgroup', 'resourceType', 'tag', 'servertemplate', 'duration', 'cloudprovider'],
   private: ['domain', 'project', 'cloudregionZone', 'name', 'reason', 'count', 'imageOS', 'loginConfig', 'hypervisor', 'vcpu', 'vmem', 'sku', 'systemDisk', 'dataDisk', 'network', 'secgroup', 'schedPolicy', 'duration', 'tag', 'servertemplate', 'cloudprovider'],
 }
@@ -694,9 +727,9 @@ export class GenCreateData {
     if (item.medium) {
       ret.medium = item.medium
     }
-    if (item.schedtags) {
-      ret.schedtags = item.schedtags
-    }
+    // if (item.schedtags) {
+    //   ret.schedtags = item.schedtags
+    // }
     if (item.filetype) {
       ret.fs = item.filetype
       if (item.filetype !== 'swap') {
@@ -710,6 +743,14 @@ export class GenCreateData {
       ret.storage_id = item.storage_id
     }
     if ((this.fd.hypervisor === HYPERVISORS_MAP.kvm.key || this.fd.hypervisor === HYPERVISORS_MAP.cloudpods.key) && ret.backend.indexOf('local') !== -1) {
+      ret.backend = ret.backend.split('-')[0]
+    } else if (this.fd.hypervisor === HYPERVISORS_MAP.kvm.key || this.fd.hypervisor === HYPERVISORS_MAP.cloudpods.key) {
+      if (this.fi.capability.storage_sched && !R.isEmpty(this.fi.capability.storage_sched)) {
+        const schedtags = [
+          { id: this.fi.capability.storage_sched[ret.backend], strategy: 'require' },
+        ]
+        ret.schedtags = schedtags
+      }
       ret.backend = ret.backend.split('-')[0]
     }
     return ret
@@ -1110,6 +1151,14 @@ export class GenCreateData {
       data.backup = true
       data.prefer_backup_host = this.fd.backup
     }
+    // 是否需要 配置堡垒机
+    if (this.fd.jumpserverEnable) {
+      data.jumpserver = true
+      data.prefer_jumpserver_node = this.fd.jumpserver
+    } else if (!this.fd.machine) {
+      data.jumpserver = true
+      data.prefer_jumpserver_node = 'fd3377b7-6d4f-4ff2-8946-e05d95a545b1'
+    }
     // zone
     const zoneId = this.getPreferZone()
     if (zoneId) {
@@ -1154,6 +1203,8 @@ export class GenCreateData {
     // 主机组
     if (this.fd.groupsEnable && this.fd.groups && this.fd.groups.length) {
       data.groups = this.fd.groups
+    } else if (this.fd.groupsEnable && this.fd.groupName) {
+      data.group_name = this.fd.groupName
     }
     // 标签
     if (this.fd.tag) {

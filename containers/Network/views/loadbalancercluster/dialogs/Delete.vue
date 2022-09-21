@@ -18,7 +18,7 @@ import DialogMixin from '@/mixins/dialog'
 import WindowsMixin from '@/mixins/windows'
 
 export default {
-  name: 'ClusterDeleteDialog',
+  name: 'nClusterDeleteDialog',
   mixins: [DialogMixin, WindowsMixin],
   data () {
     return {

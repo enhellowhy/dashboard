@@ -1139,6 +1139,7 @@
   "compute.text_1156": "Backup Machine",
   "compute.text_1157": "This function can only be used when the number of hosts is not less than 2",
   "compute.text_1158": "Simple scheduling strategy for resources, the machines in the group are distributed on different hosts according to the settings, so as to achieve high service availability",
+  "compute.jumpserver": "JumpServer Bastion",
   "compute.text_1159": "Resource Pool",
   "compute.text_1160": "On-premise",
   "compute.text_1161": "Create {0}",
@@ -1525,5 +1526,9 @@
   "compute.os.nfs": "NFS",
   "compute.transfer_mutiple_dialog_alert": "There are {0} VMs already on the host, this migration will fail, but it will not affect other VMs migrations!",
   "compute.vpc_extrnal_id": "VPC Extrnal ID",
-  "compute.mainternance_in_disabled_tip": "The number of virtual machines on the host is 0"
+  "compute.mainternance_in_disabled_tip": "The number of virtual machines on the host is 0",
+  "compute.network.env": "Specify network env",
+  "compute.group.new": "New group",
+  "compute.group.specify": "Specify group",
+  "compute.group.changeowner.tooltip": "只有解除关联虚拟机才支持该操作"
 }

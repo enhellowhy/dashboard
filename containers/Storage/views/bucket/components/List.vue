@@ -263,7 +263,8 @@ export default {
   },
   created () {
     this.list.fetchData()
-    this.initSidePageTab('objects')
+    // this.initSidePageTab('objects')
+    this.initSidePageTab('detail')
   },
   methods: {
     getParam () {

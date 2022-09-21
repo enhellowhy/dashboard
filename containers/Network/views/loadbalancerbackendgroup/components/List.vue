@@ -17,7 +17,7 @@ import { getNameFilter } from '@/utils/common/tableFilter'
 import expectStatus from '@/constants/expectStatus'
 
 export default {
-  name: 'LoadbalancerbackendgroupsList',
+  name: 'nLoadbalancerbackendgroupsList',
   mixins: [WindowsMixin, ListMixin, ColumnsMixin, SingleActionsMixin],
   props: {
     id: String,

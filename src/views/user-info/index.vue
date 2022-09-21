@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4 class="text-center mb-4">{{ userInfo.name || userInfo.email }}</h4>
-    <contact />
+<!--    <contact />-->
     <a-card
       size="small"
       :title="$t('scope.text_230', [this.$t('dictionary.user')])"
@@ -79,13 +79,13 @@ import { mapGetters } from 'vuex'
 // import ContactStatus from './components/ContactStatus'
 import { SHOW_SYSTEM_RESOURCE, contactMap } from '@/constants'
 import WindowsMixin from '@/mixins/windows'
-import Contact from './components/Contact'
+// import Contact from './components/Contact'
 import IdpCard from './components/IdpCard'
 
 export default {
   name: 'User',
   components: {
-    Contact,
+    // Contact,
     IdpCard,
     // ContactStatus,
   },

@@ -104,6 +104,10 @@ export const SCHEDTAG_POLICY_OPTIONS = Object.keys(i18n.t('schedtagPolicys')).ma
   label: i18n.t('schedtagPolicys')[key],
 }))
 
+export const SCHEDTAG_REQUIRE_OPTION = [
+  { key: 'require', label: i18n.t('schedtagPolicys').require },
+]
+
 export const ENABLED_OPTS = [
   { key: true, label: i18n.t('status.enabled.true') },
   { key: false, label: i18n.t('status.enabled.false') },

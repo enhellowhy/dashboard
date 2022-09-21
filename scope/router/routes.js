@@ -4,6 +4,7 @@ import LoginChooser from '@/sections/Auth/Login/components/LoginChooser'
 import LoginChallenge from '@/sections/Auth/Login/components/LoginChallenge'
 import AdminRegister from '@/sections/Auth/AdminRegister'
 import SecretVerify from '@/sections/Auth/SecretVerify'
+import NoAuth from '@/sections/Auth/NoAuth'
 import BindSecret from '@/sections/Auth/BindSecret'
 import SetSecretQuestion from '@/sections/Auth/SetSecretQuestion'
 import ResetSecretQuestion from '@/sections/Auth/ResetSecretQuestion'
@@ -68,6 +69,12 @@ const routes = [
         name: 'ResetSecretQuestion',
         path: 'resetsecretquestion',
         component: ResetSecretQuestion,
+        meta: { layout: 'full-screen', auth: false, authPage: true },
+      },
+      {
+        name: 'NoAuth',
+        path: 'noauth',
+        component: NoAuth,
         meta: { layout: 'full-screen', auth: false, authPage: true },
       },
     ],

@@ -29,6 +29,30 @@
                 <template v-if="price">
                   <m-animated-number :value="price" :formatValue="formatToPrice" />
                   <discount-price class="ml-2 mini-text" :discount="priceData.discount" :origin="originPrice" />
+                  <a-tooltip class="tooltip d-flex ml-2 mb-2 align-items-end">
+                    <div slot="title" class="d-flex flex-column justify-content-center">
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-fill flex-grow-1" style="width: 50px">{{$t('compute.instance.price')}}</div>
+                        <div class="ml-2 flex-fill flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(instancePrice) }}</div>
+                        <div class="ml-1 flex-fill flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.sys_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(sysDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div v-if="dataDiskPrice" class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.data_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(dataDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                    </div>
+<!--                    <template v-slot:title>-->
+<!--                      <div v-html="content" class="help-tooltip-content-wrap" />-->
+<!--                    </template>-->
+                    <icon type="question" />
+                  </a-tooltip>
+<!--                  <help-tooltip class="ml-1" name="networkPolicy" />-->
                 </template>
                 <template v-else>---</template>
               </div>
@@ -57,7 +81,7 @@
 <script>
 import * as R from 'ramda'
 import _ from 'lodash'
-import { SERVER_TYPE, BILL_TYPES_MAP, EIP_TYPES_MAP } from '@Compute/constants'
+import { BILL_TYPES_MAP, EIP_TYPES_MAP, SERVER_TYPE } from '@Compute/constants'
 import { sizestrWithUnit } from '@/utils/utils'
 import { HYPERVISORS_MAP, PROVIDER_MAP } from '@/constants'
 import SideErrors from '@/sections/SideErrors'
@@ -227,6 +251,33 @@ export default {
       }
       return null
     },
+    instancePrice () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { instance_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    sysDiskPrice () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { sys_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    dataDiskPrice () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { data_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return 0
+    },
     currency () {
       const currencys = {
         USD: '$',
@@ -299,8 +350,9 @@ export default {
   watch: {
     priceTips: {
       handler (val) {
-        let ret = `${this.currency} ${this.price && this.price.toFixed(2)}`
-        ret += !this.isPackage ? this.$t('compute.text_296') : ''
+        let ret = `${this.currency} ${this.price && this.price.toFixed(3)}`
+        // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+        ret += !this.isPackage ? this.$t('compute.hour.price.unit') : ''
         this.$bus.$emit('VMGetPrice', `${ret} ${val}`)
       },
       immediate: true,
@@ -352,9 +404,13 @@ export default {
       this.$emit('update:errors', {})
     },
     formatToPrice (val) {
-      let ret = `${this.currency} ${val.toFixed(2)}`
-      ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      let ret = `${this.currency} ${val.toFixed(3)}`
+      ret += !this.isPackage ? this.$t('compute.hour.price.unit') : ''
       return ret
+    },
+    formatToPriceWithoutHour (val) {
+      // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      return `${this.currency} ${val.toFixed(4)}`
     },
     baywatch (props, watcher) {
       const iterator = function (prop) {
@@ -364,7 +420,7 @@ export default {
     },
     // 获取总价格
     async _getPriceList () {
-      if (!this.$appConfig.isPrivate) return // 如果是开源版本则取消调用meter服务
+      // if (!this.$appConfig.isPrivate) return // 如果是开源版本则取消调用meter服务
       if (R.isEmpty(this.fd.sku) || R.isNil(this.fd.sku)) return
       if (!R.is(Number, this.fd.count)) return
       let skuProvider = this.fd.sku.provider || PROVIDER_MAP.OneCloud.key
@@ -373,6 +429,7 @@ export default {
         scope: this.$store.getters.scope,
         quantity: this.fd.count,
         brand,
+        res_type: 'vm',
       }
       if (this.isIDC && this.fd.eip_type === EIP_TYPES_MAP.new.key && this.fd.eip_bgp_type) {
         params.eip_bgp_type = this.fd.eip_bgp_type
@@ -388,7 +445,9 @@ export default {
       if (R.isNil(systemDiskSize)) return
       if (this.fi.createType !== SERVER_TYPE.public) {
         const diskSize = this.dataDisk || 0
-        params.spec = `cpu=${this.fd.vcpu}core;mem=${sizestrWithUnit(this.fd.vmem, 'M', 1024)};disk=${systemDiskSize}GB,model=${systemDiskMedium}::${systemDiskType.key};disk=${diskSize}GB,model=${dataDiskMedium}::${this.dataDiskType}`
+        const dataDiskType = this.dataDiskType === '' ? '' : this.dataDiskType.split('-')[0]
+        // params.spec = `cpu=${this.fd.vcpu}core;mem=${sizestrWithUnit(this.fd.vmem, 'M', 1024)};disk=${systemDiskSize}GB,model=${systemDiskMedium}::${systemDiskType.key};disk=${diskSize}GB,model=${dataDiskMedium}::${this.dataDiskType}`
+        params.spec = `cpu=${this.fd.vcpu},model=${this.fd.sku.instance_type_family};mem=${this.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskMedium}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${dataDiskMedium}::${dataDiskType}`
         if (this.fd.gpuEnable && this.fd.gpu) {
           const vendor = this.fd.gpu.split('=')[1]
           if (vendor) {
@@ -486,12 +545,25 @@ export default {
   }
   .prices {
     .hour {
-      color: @error-color;
+      //color: @error-color;
+      color: #f6a100;
       font-size: 24px;
     }
     .tips {
-      color: #999;
-      font-size: 12px;
+      //color: #999;
+      color: #000;
+      font-size: 14px;
+    }
+  }
+  .tooltip {
+    //color: #f6a100;
+    color: #999;
+    font-size: 12px;
+    .tooltip-title {
+      color: #f6a100;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
     }
   }
   .btns-wrapper {

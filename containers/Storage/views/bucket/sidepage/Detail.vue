@@ -4,14 +4,17 @@
     :data="data"
     :base-info="baseInfo"
     :extra-info="extraInfo"
+    :hiddenKeys="['zone', 'manager']"
     statusModule="bucket"
     resource="buckets" />
 </template>
 
 <script>
 // import BrandIcon from '@/sections/BrandIcon'
-import { ACL_TYPE, LOCATION_MAP } from '@Storage/constants/index.js'
-import { sizestrWithUnit } from '@/utils/utils'
+// import { ACL_TYPE, LOCATION_MAP } from '@Storage/constants/index.js'
+import { ACL_TYPE } from '@Storage/constants/index.js'
+import { sizestrWithUnit, tenthousandstr } from '@/utils/utils'
+import { hasPermission } from '@/utils/auth'
 import WindowsMixin from '@/mixins/windows'
 import {
   getBrandTableColumn,
@@ -103,18 +106,44 @@ export default {
           },
         }),
         {
-          field: 'location',
-          title: this.$t('storage.location'),
+          field: 'bucket_owner',
+          title: i18n.t('storage.bucket.owner'),
           slots: {
             default: ({ row }) => {
-              return LOCATION_MAP[row.location] || row.location || '-'
+              if (!row.manager_id) return row.manager || '-'
+              const p = hasPermission({ key: 'cloudproviders_get' })
+              let node
+              if (p) {
+                node = (
+                  <list-body-cell-wrap copy row={ this.data } onManager={ this.onManager } field='manager' title={ row.manager } hideField={ true }>
+                    <side-page-trigger permission='cloudproviders_get' name='CloudproviderSidePage' id={row.manager_id} vm={this}>{ row.manager }</side-page-trigger>
+                  </list-body-cell-wrap>
+                )
+              } else {
+                node = (
+                  <list-body-cell-wrap copy row={ this.data } onManager={ this.onManager } field='manager' title={ row.manager } />
+                )
+              }
+              return [
+                <div class='text-truncate'>{ node }</div>,
+              ]
             },
           },
+          hidden: () => this.$store.getters.isProjectMode,
         },
-        {
-          field: 'storage_class',
-          title: this.$t('storage.text_38'),
-        },
+        // {
+        //   field: 'location',
+        //   title: this.$t('storage.location'),
+        //   slots: {
+        //     default: ({ row }) => {
+        //       return LOCATION_MAP[row.location] || row.location || '-'
+        //     },
+        //   },
+        // },
+        // {
+        //   field: 'storage_class',
+        //   title: this.$t('storage.text_38'),
+        // },
       ],
     }
   },
@@ -211,9 +240,15 @@ export default {
           field: 'url',
           slots: {
             default: ({ row }, h) => {
-              if (!this.data.access_urls) {
-                return '-'
-              }
+              // if (!this.data.access_urls) {
+              //   return '-'
+              // }
+              const access_urls = [
+                {
+                  url: 'https://s3.it.lixiangoa.com',
+                  description: '官方域名',
+                },
+              ]
               const columns = [
                 {
                   field: 'url',
@@ -231,94 +266,103 @@ export default {
                 {
                   field: 'description',
                   title: this.$t('storage.text_140'),
-                },
-              ]
-              return [
-                <vxe-grid class="mb-2" data={ this.data.access_urls || [] } columns={ columns } />,
-              ]
-            },
-          },
-        },
-        {
-          title: this.$t('storage.text_220'),
-          field: 'cdn_domains',
-          slots: {
-            default: ({ row }, h) => {
-              if (!this.data.cdn_domains) {
-                return '-'
-              }
-              const columns = [
-                {
-                  field: 'domain',
-                  title: this.$t('storage.text_221'),
                   slots: {
                     default: ({ row }) => {
                       return [
                         <div>
-                          <a href={row.domain}>{row.domain}</a>
-                          <copy class="ml-1" message={row.domain} />
+                          <span>{row.description}</span>
                         </div>]
                     },
                   },
                 },
-                {
-                  field: 'status',
-                  title: this.$t('storage.text_41'),
-                  formatter: ({ cellValue, row }) => {
-                    const map = {
-                      rejected: this.$t('storage.text_222'),
-                      processing: this.$t('storage.text_223'),
-                      online: this.$t('storage.text_224'),
-                      offline: this.$t('storage.text_225'),
-                    }
-                    return map[cellValue] || '-'
-                  },
-                },
-                {
-                  field: 'area',
-                  title: this.$t('storage.text_226'),
-                  formatter: ({ cellValue, row }) => {
-                    const map = {
-                      mainland: this.$t('storage.text_227'),
-                      overseas: this.$t('storage.text_228'),
-                      global: this.$t('storage.text_229'),
-                    }
-                    return map[cellValue] || '-'
-                  },
-                },
               ]
               return [
-                <vxe-grid class="mb-2" data={ this.data.cdn_domains || [] } columns={ columns } />,
+                // <vxe-grid class="mb-2" data={ this.data.access_urls || [] } columns={ columns } />,
+                <vxe-grid class="mb-2" data={ access_urls || [] } columns={ columns } />,
               ]
             },
           },
         },
-        {
-          title: this.$t('storage.text_230'),
-          items: [
-            {
-              field: 'website_url',
-              title: this.$t('storage.text_231'),
-              slots: {
-                default: ({ row }, h) => {
-                  return [
-                    <list-body-cell-wrap class="float-left" copy row={ row } field='website_url' title={ row.website_url } />,
-                    <a-tooltip>
-                      { row.provider !== HYPERVISORS_MAP.qcloud.provider
-                        ? (this._isOwner
-                          ? (HYPERVISORS_MAP[row.provider.toLowerCase()]
-                            ? <template slot="title">{i18n.t('storage.text_236', [HYPERVISORS_MAP[row.provider.toLowerCase()].label])}</template>
-                            : '')
-                          : this.$t('storage.text_257'))
-                        : null }
-                      <a-button type="link" class="float-left ml-2" style="display: grid;" disabled={ row.provider !== HYPERVISORS_MAP.qcloud.provider && this._isOwner } onClick={() => this.handleSetWebsite(row)}>{ this.$t('common.setting') }</a-button>
-                    </a-tooltip>,
-                  ]
-                },
-              },
-            },
-          ],
-        },
+        // {
+        //   title: this.$t('storage.text_220'),
+        //   field: 'cdn_domains',
+        //   slots: {
+        //     default: ({ row }, h) => {
+        //       if (!this.data.cdn_domains) {
+        //         return '-'
+        //       }
+        //       const columns = [
+        //         {
+        //           field: 'domain',
+        //           title: this.$t('storage.text_221'),
+        //           slots: {
+        //             default: ({ row }) => {
+        //               return [
+        //                 <div>
+        //                   <a href={row.domain}>{row.domain}</a>
+        //                   <copy class="ml-1" message={row.domain} />
+        //                 </div>]
+        //             },
+        //           },
+        //         },
+        //         {
+        //           field: 'status',
+        //           title: this.$t('storage.text_41'),
+        //           formatter: ({ cellValue, row }) => {
+        //             const map = {
+        //               rejected: this.$t('storage.text_222'),
+        //               processing: this.$t('storage.text_223'),
+        //               online: this.$t('storage.text_224'),
+        //               offline: this.$t('storage.text_225'),
+        //             }
+        //             return map[cellValue] || '-'
+        //           },
+        //         },
+        //         {
+        //           field: 'area',
+        //           title: this.$t('storage.text_226'),
+        //           formatter: ({ cellValue, row }) => {
+        //             const map = {
+        //               mainland: this.$t('storage.text_227'),
+        //               overseas: this.$t('storage.text_228'),
+        //               global: this.$t('storage.text_229'),
+        //             }
+        //             return map[cellValue] || '-'
+        //           },
+        //         },
+        //       ]
+        //       return [
+        //         <vxe-grid class="mb-2" data={ this.data.cdn_domains || [] } columns={ columns } />,
+        //       ]
+        //     },
+        //   },
+        // },
+        // {
+        //   title: this.$t('storage.text_230'),
+        //   items: [
+        //     {
+        //       field: 'website_url',
+        //       title: this.$t('storage.text_231'),
+        //       slots: {
+        //         default: ({ row }, h) => {
+        //           return [
+        //             <list-body-cell-wrap class="float-left" copy row={ row } field='website_url' title={ row.website_url } />,
+        //             <a-tooltip>
+        //               { row.provider !== HYPERVISORS_MAP.qcloud.provider
+        //                 ? (this._isOwner
+        //                   ? (HYPERVISORS_MAP[row.provider.toLowerCase()]
+        //                     ? <template slot="title">{i18n.t('storage.text_236', [HYPERVISORS_MAP[row.provider.toLowerCase()].label])}</template>
+        //                     : '')
+        //                   : this.$t('storage.text_257'))
+        //                 : null }
+        //               <a-button type="link" class="float-left ml-2" style="display: grid;" disabled={ row.provider !== HYPERVISORS_MAP.qcloud.provider && this._isOwner } onClick={() => this.handleSetWebsite(row)}>{ this.$t('common.setting') }</a-button>
+        //             </a-tooltip>,
+        //           ]
+        //         },
+        //       },
+        //     },
+        //   ],
+        // },
         {
           title: <RenderSizeTitle data={this.data} />,
           items: [
@@ -333,7 +377,8 @@ export default {
               field: 'object_cnt',
               title: this.$t('storage.text_142'),
               formatter: ({ row }) => {
-                return this.$t('storage.text_143', [row.object_cnt || 0])
+                // return this.$t('storage.text_143', [row.object_cnt || 0])
+                return tenthousandstr(row.object_cnt, '个', 10000)
               },
             },
           ],
@@ -357,7 +402,8 @@ export default {
               title: this.$t('storage.text_135'),
               formatter: ({ row }) => {
                 if (row.object_cnt_limit > 0) {
-                  return this.$t('storage.text_146', [row.object_cnt_limit])
+                  // return this.$t('storage.text_146', [row.object_cnt_limit])
+                  return tenthousandstr(row.object_cnt_limit, '个', 10000)
                 } else {
                   return this.$t('storage.text_145')
                 }

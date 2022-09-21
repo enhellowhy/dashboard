@@ -45,7 +45,7 @@
 
 <script>
 export default {
-  name: 'LbRedirect',
+  name: 'nLbRedirect',
   props: {
     form: {
       type: Object,

@@ -182,7 +182,8 @@ export default {
       return new this.$Manager('zones').get({ id: zone })
     },
     getProcessInstance (pid) {
-      return new this.$Manager('historic-process-instances', 'v1').get({ id: pid })
+      // return new this.$Manager('historic-process-instances', 'v1').get({ id: pid })
+      return new this.$Manager('workflow_process_instances', 'v1').get({ id: pid })
     },
     getServerInfo (serverIds) {
       if (!Array.isArray(serverIds)) {

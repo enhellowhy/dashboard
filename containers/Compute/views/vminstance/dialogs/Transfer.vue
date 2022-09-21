@@ -129,7 +129,7 @@ export default {
       const ret = {
         scope: this.scope,
         host_type: hostType,
-        limit: 20,
+        limit: 100,
         enabled: 1,
         host_status: 'online',
         server_id_for_network: this.firstData.id,

@@ -91,6 +91,31 @@
                 <template v-if="price">
                   <m-animated-number :value="price" :formatValue="formatToPrice" />
                   <discount-price class="ml-2 mini-text" :discount="priceData.discount" :origin="originPrice" />
+                  <a-tooltip class="tooltip d-flex ml-2 mb-2 align-items-end">
+                    <div v-if="sysDiskPrice" slot="title" class="d-flex flex-column justify-content-center">
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-fill flex-grow-1" style="width: 50px">{{$t('compute.instance.price')}}</div>
+                        <div class="ml-2 flex-fill flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(instancePrice) }}</div>
+                        <div class="ml-1 flex-fill flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.sys_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(sysDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div v-if="dataDiskPrice" class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.data_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(dataDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                    </div>
+                    <div v-else slot="title" class="d-flex flex-column justify-content-center">
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.tooltip')}}</div>
+                      </div>
+                    </div>
+                    <icon type="question" />
+                  </a-tooltip>
                 </template>
                 <template v-else>---</template>
               </div>
@@ -131,7 +156,8 @@ import {
 } from '@/utils/common/tableColumn'
 import { findPlatform } from '@/utils/common/hypervisor'
 import { isRequired } from '@/utils/validate'
-import { sizestr, sizestrWithUnit } from '@/utils/utils'
+// import { sizestr, sizestrWithUnit } from '@/utils/utils'
+import { sizestr } from '@/utils/utils'
 import { STORAGE_TYPES } from '@/constants/compute'
 import DiscountPrice from '@/sections/DiscountPrice'
 
@@ -543,7 +569,7 @@ export default {
     },
     hasMeterService () { // 是否有计费的服务
       const { services } = this.$store.getters.userInfo
-      const meterService = services.find(val => val.type === 'meter')
+      const meterService = services.find(val => val.type === 'meter-li')
       if (meterService && meterService.status === true) {
         return true
       }
@@ -600,7 +626,8 @@ export default {
       return 0
     },
     disk () {
-      const diskValueArr = [this.form.fd.systemDiskSize]
+      // const diskValueArr = [this.form.fd.systemDiskSize]
+      const diskValueArr = []
       R.forEachObjIndexed(value => {
         diskValueArr.push(value)
       }, this.form.fd.dataDiskSizes)
@@ -627,6 +654,33 @@ export default {
     priceData () {
       const data = _.get(this.pricesList, '[0]', { discount: 1 })
       return data
+    },
+    instancePrice () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { instance_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    sysDiskPrice () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { sys_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    dataDiskPrice () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { data_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return 0
     },
     originPrice () {
       if (this.pricesList && this.pricesList.length > 0) {
@@ -716,12 +770,14 @@ export default {
     this.serversManager = new Manager('servers', 'v2')
     this.zonesM2 = new Manager('zones', 'v2')
     this.serverskusM = new Manager('serverskus')
+    this.storagesM = new Manager('storages')
     this.loadData(this.params.data)
     this.fetchInstanceSpecs()
     this.getPriceList = _.debounce(this._getPriceList, 500)
     this.baywatch([
       'form.fd.sku.id',
       'form.fd.dataDiskSizes',
+      'form.fd.dataDiskTypes',
     ], (val) => {
       if (val) {
         this.getPriceList()
@@ -767,6 +823,9 @@ export default {
         if ((this.selectedItem.hypervisor === HYPERVISORS_MAP.kvm.hypervisor || this.selectedItem.hypervisor === HYPERVISORS_MAP.cloudpods.hypervisor) && diskKey === 'local' && disk_type === 'sys' && medium_type && this.isSomeLocal()) {
           diskKey = `${diskKey}-${medium_type}`
         }
+        if ((this.selectedItem.hypervisor === HYPERVISORS_MAP.kvm.hypervisor || this.selectedItem.hypervisor === HYPERVISORS_MAP.cloudpods.hypervisor) && diskKey === 'rbd' && disk_type === 'sys' && medium_type) {
+          diskKey = `${diskKey}-${medium_type}`
+        }
         this.form.fd.defaultType = {
           [this.decorators.systemDisk.type[0]]: { key: diskKey, label: R.is(Object, storageItem) ? (_.get(storageItem, '[diskKey].key') || diskKey) : diskKey },
         }
@@ -776,7 +835,12 @@ export default {
       this.$nextTick(() => {
         setTimeout(() => {
           this.form.fd.datadisks.forEach((v, i) => {
-            this.$refs.dataDiskRef.add({ size: v.value, min: v.value, diskType: v.type, disabled: true, sizeDisabled: true, medium: dataDiskMedium, ...v })
+            let diskKey = v.type
+            if ((this.selectedItem.hypervisor === HYPERVISORS_MAP.kvm.hypervisor || this.selectedItem.hypervisor === HYPERVISORS_MAP.cloudpods.hypervisor) && diskKey === 'rbd' && dataDiskMedium) {
+              diskKey = `${diskKey}-${dataDiskMedium}`
+            }
+            // this.$refs.dataDiskRef.add({ size: v.value, min: v.value, diskType: v.type, disabled: true, sizeDisabled: true, medium: dataDiskMedium, ...v })
+            this.$refs.dataDiskRef.add({ size: v.value, min: v.value, diskType: diskKey, disabled: true, sizeDisabled: true, medium: dataDiskMedium, ...v })
           })
           this.diskLoaded = true
         }, 2000)
@@ -911,6 +975,21 @@ export default {
         }
       }
     },
+    fetchLocalStorage () {
+      const params = {
+        enabled: true,
+        host_id: this.selectedItem.host_id,
+        local: true,
+        scope: 'system',
+      }
+      this.storagesM.list({ params })
+        .then(({ data: { data = [] } }) => {
+          if (data.length) {
+            const firstStorage = data[0]
+            this.dataDiskType = 'local-' + firstStorage.medium_type
+          }
+        })
+    },
     fetchInstanceSpecs () {
       const params = {
         usable: true,
@@ -942,6 +1021,8 @@ export default {
         })
     },
     onValuesChange (props, values) {
+      console.log(this.selectedItem)
+      console.log('values')
       Object.keys(values).forEach((key) => {
         let value = values[key]
         if (key === 'dataDiskSizes' && R.is(Object, values[key]) && R.is(Object, this.form.fd.dataDiskSizes)) {
@@ -950,6 +1031,9 @@ export default {
         this.$set(this.form.fd, key, value)
         if (~key.indexOf('dataDiskTypes') && R.is(Object, values)) {
           this.dataDiskType = values[key].key
+          if (this.dataDiskType === 'local') {
+            this.fetchLocalStorage()
+          }
         }
         if (~key.indexOf('dataDiskSizes[')) {
           const uid = key.replace(/dataDiskSizes\[(.+)\]/, '$1')
@@ -979,10 +1063,80 @@ export default {
           diskObj.size = values.dataDiskSizes[key] * 1024
         }
         if (values.dataDiskTypes) {
+          // console.log(values)
+          // {
+          //   "vcpu": 2,
+          //   "vmem": 2048,
+          //   "sku": {
+          //     "attached_disk_count": 0,
+          //     "attached_disk_size_gb": 0,
+          //     "can_delete": false,
+          //     "can_update": true,
+          //     "cloudregion": "北京",
+          //     "cloudregion_id": "default",
+          //     "cpu_core_count": 2,
+          //     "created_at": "2021-12-23T08:57:20.000000Z",
+          //     "data_disk_max_count": 0,
+          //     "deleted": false,
+          //     "enabled": true,
+          //     "gpu_attachable": true,
+          //     "gpu_count": 0,
+          //     "gpu_max_count": 0,
+          //     "id": "acb92f04-6908-4f82-8d6f-b7cc37ceaa70",
+          //     "imported_at": "2021-12-23T08:57:20.000000Z",
+          //     "instance_type_category": "general_purpose",
+          //     "instance_type_family": "g1",
+          //     "is_emulated": false,
+          //     "local_category": "general_purpose",
+          //     "memory_size_mb": 2048,
+          //     "name": "ecs.g1.c2m2",
+          //     "nic_max_count": 1,
+          //     "os_name": "Any",
+          //     "postpaid_status": "available",
+          //     "prepaid_status": "available",
+          //     "provider": "OneCloud",
+          //     "region": "北京",
+          //     "region_id": "default",
+          //     "source": "local",
+          //     "status": "ready",
+          //     "sys_disk_max_size_gb": 0,
+          //     "sys_disk_min_size_gb": 0,
+          //     "sys_disk_resizable": true,
+          //     "total_guest_count": 9,
+          //     "update_version": 1,
+          //     "updated_at": "2021-12-23T08:57:20.000000Z",
+          //     "instance_type_category_i18n": "通用型",
+          //     "memory_size_mb_compute": 2
+          //   },
+          //   "autoStart": true,
+          //   "systemDiskType": {
+          //     "key": "local",
+          //     "label": "local"
+          //   },
+          //   "systemDiskSize": 30,
+          //   "dataDiskTypes": {
+          //     "04909077-F744-4E2F-860B-721109E19E89": {
+          //       "key": "local",
+          //       "label": "local"
+          //     }
+          //   },
+          //   "dataDiskSizes": {
+          //     "04909077-F744-4E2F-860B-721109E19E89": 30
+          //   }
+          // }
           if (values.dataDiskTypes[key]) {
             // 针对kvm-local盘特殊处理
             let diskKey = values.dataDiskTypes[key].key
-            if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+            if (diskKey.indexOf('rbd') !== -1 && this.needLocalMedium && this.form.fi.capability.storage_sched && !R.isEmpty(this.form.fi.capability.storage_sched)) {
+              diskObj.schedtags = [
+                { id: this.form.fi.capability.storage_sched[diskKey] },
+              ]
+              diskObj.schedtags[0].strategy = 'require'
+            }
+            // if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+            //   diskKey = diskKey.split('-')[0]
+            // }
+            if ((diskKey.indexOf('rbd') !== -1 || diskKey.indexOf('local') !== -1) && this.needLocalMedium) {
               diskKey = diskKey.split('-')[0]
             }
             diskObj.backend = diskKey
@@ -990,7 +1144,16 @@ export default {
             if (_.get(dataDisks, '[0].diskType.key')) {
               // 针对kvm-local盘特殊处理
               let diskKey = _.get(dataDisks, '[0].diskType.key') // 默认添加的盘和第一块保持一致
-              if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+              if (diskKey.indexOf('rbd') !== -1 && this.needLocalMedium && this.form.fi.capability.storage_sched && !R.isEmpty(this.form.fi.capability.storage_sched)) {
+                diskObj.schedtags = [
+                  { id: this.form.fi.capability.storage_sched[diskKey] },
+                ]
+                diskObj.schedtags[0].strategy = 'require'
+              }
+              // if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+              //   diskKey = diskKey.split('-')[0]
+              // }
+              if ((diskKey.indexOf('rbd') !== -1 || diskKey.indexOf('local') !== -1) && this.needLocalMedium) {
                 diskKey = diskKey.split('-')[0]
               }
               diskObj.backend = diskKey
@@ -1006,14 +1169,14 @@ export default {
         if (values.dataDiskSnapshots && values.dataDiskSnapshots[key]) {
           diskObj.snapshot_id = values.dataDiskSnapshots[key]
         }
-        if (values.dataDiskSchedtags && values.dataDiskSchedtags[key]) {
-          diskObj.schedtags = [
-            { id: values.dataDiskSchedtags[key] },
-          ]
-          if (values.dataDiskPolicys && values.dataDiskPolicys[key]) {
-            diskObj.schedtags[0].strategy = values.dataDiskPolicys[key]
-          }
-        }
+        // if (values.dataDiskSchedtags && values.dataDiskSchedtags[key]) {
+        //   diskObj.schedtags = [
+        //     { id: values.dataDiskSchedtags[key] },
+        //   ]
+        //   if (values.dataDiskPolicys && values.dataDiskPolicys[key]) {
+        //     diskObj.schedtags[0].strategy = values.dataDiskPolicys[key]
+        //   }
+        // }
         if (values.dataDiskStorages && values.dataDiskStorages[key]) {
           diskObj.storage_id = values.dataDiskStorages[key]
         }
@@ -1041,9 +1204,14 @@ export default {
       props.forEach(iterator, this)
     },
     formatToPrice (val) {
-      let ret = `${this.currency} ${val.toFixed(2)}`
-      ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      let ret = `${this.currency} ${val.toFixed(3)}`
+      // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      ret += !this.isPackage ? this.$t('compute.hour.price.unit') : ''
       return ret
+    },
+    formatToPriceWithoutHour (val) {
+      // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      return `${this.currency} ${val.toFixed(4)}`
     },
     // 获取总价格
     async _getPriceList () {
@@ -1054,6 +1222,7 @@ export default {
       const params = {
         scope: this.$store.getters.scope,
         quantity: this.count,
+        res_type: 'vm',
         brand,
       }
       if (this.isPublic) {
@@ -1063,12 +1232,25 @@ export default {
         }
       }
       const { systemDiskSize = 0, systemDiskType = {}, sysdisks = [] } = this.form.fd
+      console.log(this.dataDiskType)
       if (this.params.data[0].cloud_env !== SERVER_TYPE.public) {
-        let diskSize = this.disk || 0
-        if (!this.disk && sysdisks) {
-          diskSize = sysdisks.reduce((sum, disk) => { return sum + disk.value }, 0) / this.count
+        const { sku } = this.form.fd
+        if (this.count > 1) {
+          params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=0,model=::;disk=0,model=::`
+        } else {
+          let diskSize = this.disk || 0
+          const disk_storage_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[0]
+          const disk_medium_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[1]
+          if (!this.disk && sysdisks) {
+            // diskSize = sysdisks.reduce((sum, disk) => { return sum + disk.value }, 0) / this.count
+            diskSize = 0
+          }
+          const { storage_type, medium_type } = this.selectedItem.disks_info[0] || {} // disk_type: "sys"
+          // console.log(this.selectedItem)
+          // params.spec = `cpu=${this.form.fd.vcpu}core;mem=${sizestrWithUnit(this.form.fd.vmem, 'M', 1024)};disk=${diskSize}GB`
+          // params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskType.key.split('-')[1]}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${datadiskmedium}::${dataDiskType}`
+          params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=${systemDiskSize},model=${medium_type}::${storage_type};disk=${diskSize},model=${disk_medium_type}::${disk_storage_type}`
         }
-        params.spec = `cpu=${this.form.fd.vcpu}core;mem=${sizestrWithUnit(this.form.fd.vmem, 'M', 1024)};disk=${diskSize}GB`
       } else {
         const { sku } = this.form.fd
         const { region_ext_id: regionExtId, name, zone_ext_id: zoneExtId } = sku
@@ -1132,11 +1314,24 @@ export default {
 }
 .prices {
   .hour {
+    color: #f6a100;
     font-size: 24px;
   }
   .tips {
-    color: #999;
-    font-size: 12px;
+    //color: #999;
+    color: #000;
+    font-size: 14px;
+  }
+}
+.tooltip {
+  //color: #f6a100;
+  color: #999;
+  font-size: 12px;
+  .tooltip-title {
+    color: #f6a100;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
   }
 }
 </style>

@@ -28,7 +28,7 @@ import { changeToArr } from '@/utils/utils'
 import GlobalSearchMixin from '@/mixins/globalSearch'
 
 export default {
-  name: 'LbList',
+  name: 'nLbList',
   mixins: [WindowsMixin, ListMixin, GlobalSearchMixin, ColumnsMixin, SingleActionsMixin],
   props: {
     id: String,

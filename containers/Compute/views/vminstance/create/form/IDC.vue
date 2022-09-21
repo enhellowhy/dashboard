@@ -54,6 +54,9 @@
       <a-form-item v-if="form.fd.hypervisor === 'kvm'" :label="$t('compute.text_1152')" :extra="$t('compute.text_1153')">
         <gpu :decorators="decorators.gpu" :gpu-options="gpuOptions" @change="gpuChange" />
       </a-form-item>
+      <a-form-item v-show="!isServertemplate" v-if="isKvm" :label="$t('dictionary.instancegroup')" :extra="$t('compute.text_1158')">
+        <instance-groups :decorators="decorators.groups" :params="instanceGroupsParams" />
+      </a-form-item>
       <a-form-item :label="$t('compute.text_1058')" class="mb-0">
         <cpu-radio :decorator="decorators.vcpu" :options="form.fi.cpuMem.cpus || []" @change="cpuChange" />
       </a-form-item>
@@ -133,9 +136,12 @@
         <server-network
           :form="form"
           :isServertemplate="isServertemplate"
+          :defaultNetwork="isServertemplate"
+          :allowNetworkTypes="allowNetworkTypes"
           :decorator="decorators.network"
           :network-list-params="networkParam"
           :schedtag-params="schedtagParams"
+          :schedtagRequireOpt="schedtagRequireOpt"
           :networkVpcParams="networkVpcParams"
           :vpcResource="vpcResource"
           :hypervisor="form.fd.hypervisor"
@@ -200,8 +206,15 @@
               :availableHostCount="availableHostCount"
               :hostParams="backupHostParams" />
           </a-form-item>
-          <a-form-item v-show="!isServertemplate" v-if="isKvm" :label="$t('dictionary.instancegroup')" :extra="$t('compute.text_1158')">
-            <instance-groups :decorators="decorators.groups" :params="instanceGroupsParams" />
+<!--          <a-form-item v-show="!isServertemplate" v-if="isKvm" :label="$t('dictionary.instancegroup')" :extra="$t('compute.text_1158')">-->
+<!--            <instance-groups :decorators="decorators.groups" :params="instanceGroupsParams" />-->
+<!--          </a-form-item>-->
+          <a-form-item v-show="!isServertemplate" v-if="isKvm" :label="$t('compute.jumpserver')">
+            <jump-server
+              :decorator="decorators.jumpserver"
+              :domain="form.fd.domain"
+              :availableNodeCount="availableHostCount"
+              :nodeParams="policyHostParams" />
           </a-form-item>
         </a-collapse-panel>
       </a-collapse>

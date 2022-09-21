@@ -22,7 +22,7 @@
         <a-input v-decorator="decorators.name" :placeholder="$t('validator.resourceCreateName')" />
       </a-form-item>
       <a-form-item :label="$t('compute.text_294')" v-bind="formItemLayout">
-        <a-input-number v-decorator="decorators.count" :min="1" :max="100" :disabled="isInstallOperationSystem" />
+        <a-input-number v-decorator="decorators.count" :min="1" :max="100" @blur="countBlur" :disabled="isInstallOperationSystem" />
       </a-form-item>
       <a-form-item v-bind="formItemLayout" :label="$t('compute.text_267')" :extra="$t('compute.text_302')">
         <os-select
@@ -114,6 +114,10 @@
       <bottom-bar
         :loading="submiting"
         :form="form"
+        :bcount="count"
+        :bname="bname"
+        :bzone="bzone"
+        :bimage="bimage"
         :selectedSpecItem="selectedSpecItem"
         type="baremetal"
         :isOpenWorkflow="isOpenWorkflow"
@@ -132,6 +136,7 @@ import { LOGIN_TYPES_MAP, NETWORK_OPTIONS_MAP, FORECAST_FILTERS_MAP } from '@Com
 import OsSelect from '@Compute/sections/OsSelect'
 import ServerPassword from '@Compute/sections/ServerPassword'
 import ServerNetwork from '@Compute/sections/ServerNetwork'
+// import { resolveValueChangeField } from '@/utils/common/ant'
 import SchedPolicy from '@Compute/sections/SchedPolicy'
 import DomainProject from '@/sections/DomainProject'
 import CloudregionZone from '@/sections/CloudregionZone'
@@ -194,12 +199,23 @@ export default {
         fc: this.$form.createForm(this, {
           onValuesChange: (props, values) => {
             this.$bus.$emit('updateForm', values)
+            // const formValue = this.form.fc.getFieldsValue()
+            // const newField = resolveValueChangeField(values)
+            // R.forEachObjIndexed((item, key) => {
+            //   this.$set(this.form.fd, key, item)
+            // }, newField)
+            // this._setNewFieldToFd(newField, formValue)
             if (values.hasOwnProperty('cloudregion') && values.cloudregion.key) {
               this.cloudregion = values.cloudregion.key
             }
             if (values.hasOwnProperty('zone') && values.zone.key) {
               this.capability(values.zone.key)
               this.zone = values.zone.key
+              this.bzone = values.zone
+            }
+            if (values.hasOwnProperty('image')) {
+              console.log('image----', values)
+              // this.bimage = values.image
             }
             if (values.hasOwnProperty('imageType')) {
               if (values.imageType === 'iso') {
@@ -214,6 +230,16 @@ export default {
                 ...this.params.region,
                 project_domain: values.domain.key,
               }
+            }
+            if (values.name) {
+              this.bname = values.name
+              // this.$nextTick(() => {
+              //   this.form.fc.setFieldsValue({ name: '' })
+              // })
+            }
+            if (values.count) {
+              console.log('count--------------')
+              this.count = values.count
             }
           },
         }),
@@ -513,6 +539,9 @@ export default {
       isBonding: false,
       isShowFalseIcon: false,
       count: 1,
+      bname: '',
+      bzone: {},
+      bimage: {},
       hostData: [],
       filterHostData: [],
       isSupportIso: false,
@@ -581,7 +610,7 @@ export default {
     },
     hasMeterService () { // 是否有计费的服务
       const { services } = this.$store.getters.userInfo
-      const meterService = services.find(val => val.type === 'meter')
+      const meterService = services.find(val => val.type === 'meter-li')
       if (meterService && meterService.status === true) {
         return true
       }
@@ -604,7 +633,8 @@ export default {
       return types
     },
     isOpenWorkflow () {
-      return this.checkWorkflowEnabled(WORKFLOW_TYPES.APPLY_MACHINE)
+      // return this.checkWorkflowEnabled(WORKFLOW_TYPES.APPLY_MACHINE)
+      return false
     },
     isCheckedIso () {
       return this.osSelectImageType === 'iso'
@@ -683,12 +713,25 @@ export default {
       return list.filter(val => val.id === 'default')
     },
     setSelectedImage ({ imageMsg }) {
+      console.log('setSelectedImage')
+      console.log(imageMsg)
       this.selectedImage = imageMsg
+      this.bimage.image = { key: imageMsg.id, label: imageMsg.name }
+      console.log(this.bimage)
+      console.log(this.bimage.image)
     },
     // 过滤network数据
     networkResourceMapper (data) {
       data = data.filter((d) => d.server_type !== 'ipmi' && d.server_type !== 'pxe')
       return data
+    },
+    countBlur () {
+      const count = this.form.fc.getFieldValue(this.decorators.count[0])
+      if (!count) {
+        this.form.fc.setFieldsValue({
+          [this.decorators.count[0]]: 1,
+        })
+      }
     },
     // 指定物理机改变
     hostChange (e) {
@@ -808,18 +851,24 @@ export default {
     _loadSpecificationOptions (data) {
       const specs = {}
       let entries = Object.entries(data)
+      console.log('data-----', data)
+      // {"cpu:64/disk:Linux_adapter0_HDD_1863Gx1/disk:Linux_adapter0_SSD_223Gx1/manufacture:Powerleader/mem:128473M/model:PR1710P/nic:4" : Object{cpu: 64, count: 1}}
       entries = entries.map(item => {
-        const newKey = item[0].replace(/model:.+\//, '')
+        // const newKey = item[0].replace(/model:.+\//, '')
+        const newKey = item[0]
         return [newKey, item[1]]
       })
       entries.forEach(item => {
         specs[item[0]] = item[1]
       })
+      console.log('specs-----', specs)
+      // {"cpu:64/disk:Linux_adapter0_HDD_1863Gx1/disk:Linux_adapter0_SSD_223Gx1/manufacture:Powerleader/mem:128473M/nic:4" : Object{cpu: 64, count: 1}}
       const options = []
       for (const k in specs) {
         const spec = {
           text: this.__getSpecification(specs[k]),
           value: k,
+          // model: specs[k].model,
         }
         options.push(spec)
       }
@@ -836,11 +885,15 @@ export default {
         // 根据规格读取wire数据
         this.getSpecWire(this.specOptions[0].value)
         const originalValue = this.specOptions[0].value
-        const str = this.specOptions[0].value.replace(/\//g, ',')
-        const arr = str.split(',')
+        // const str = this.specOptions[0].value.replace(/\//g, ',')
+        // const arr = str.split(',')
+        const arr = this.specOptions[0].value.split('/')
         const obj = {}
         for (var i = 0; i < arr.length; i++) {
           const arr2 = arr[i].split(':')
+          if (arr2.length !== 2) {
+            continue
+          }
           obj[arr2[0]] = arr2[1]
         }
         obj.value = originalValue
@@ -895,15 +948,21 @@ export default {
         gpuString = gpuString.substr(0, gpuString.length - 1)
         return `${cpu}C${mem}${disks}${gpuString}`
       }
+      // isolated_devices 根据 model 去重并添加count字段
+      if (spec.manufacture && spec.model) {
+        // model string
+        const modelString = `_${spec.manufacture}_${spec.model}`
+        return `${cpu}C${mem}${disks}${modelString}`
+      }
       return `${cpu}C${mem}${disks}`
     },
     __ignoreModel (options) {
-      options = options.map(item => {
-        return {
-          text: item.text,
-          value: item.value.replace(/model:.+\//, ''),
-        }
-      })
+      // options = options.map(item => {
+      //   return {
+      //     text: item.text,
+      //     value: item.value.replace(/model:.+\//, ''),
+      //   }
+      // })
       return this.uniqueArr(options, 'value')
     },
     uniqueArr (arr, field) {

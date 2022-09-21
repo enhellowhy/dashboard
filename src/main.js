@@ -62,6 +62,27 @@ async function start () {
 
 window.app = app
 window.buildInfo = process.env.VUE_APP_BUILDINFO
-document.title = process.env.VUE_APP_IS_PRIVATE ? '' : 'Cloudpods'
+// <!--审批组件全局配置-->
+window.approvalConfig = {
+  // 鉴权URL
+  authUrl: 'https://bpm.lixiangoa.com/apps/api/v1/private/user/getAuth',
+  blaPath: 'https://bpm.lixiangoa.com/ego_api/',
+  apiPath: 'https://bpm.lixiangoa.com/ego_api/client/v1/',
+}
+
+// UI组件库全局配置
+window.okuiConfig = {
+  env: 'PRD',
+  apiPath: location.origin + '/apps/api/',
+  sourceHost: location.origin,
+  cardPath: location.origin + '/apps/api/',
+}
+
+// document.title = process.env.VUE_APP_IS_PRIVATE ? '' : 'Cloudpods'
+document.title = process.env.VUE_APP_IS_PRIVATE ? '' : '理想汽车私有云平台'
+
+document.addEventListener('bla-auth-event', e => {
+  console.log('TODO handle e.detail', e.detail)
+})
 
 start()

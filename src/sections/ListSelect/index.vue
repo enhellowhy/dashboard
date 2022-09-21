@@ -92,7 +92,12 @@ export default {
   },
   created () {
     this.listProps.list.disableStorageLimit = true
-    this.listProps.list.limit = 10
+    if (!R.isNil(this.listProps.list.id) && this.listProps.list.id === 'LIST_VmHostsListForTransferDialog') {
+      this.listProps.list.limit = 100 // 这个limit与getParams.limit还不同
+    }
+    // this.listProps.list.limit = 10
+    // console.log(this.listProps.list.limit)
+    // console.log(this.listProps.getParams.limit)
     if (!R.isNil(this.selected)) {
       this.getDetails()
     }

@@ -16,7 +16,7 @@ import { getNameFilter } from '@/utils/common/tableFilter'
 import expectStatus from '@/constants/expectStatus'
 
 export default {
-  name: 'LoadbalancerbackendList',
+  name: 'nLoadbalancerbackendList',
   mixins: [WindowsMixin, ListMixin, ColumnsMixin, SingleActionsMixin],
   props: {
     id: String,
@@ -70,7 +70,7 @@ export default {
           label: this.$t('network.text_26'),
           permission: 'lb_loadbalancerbackends_create',
           action: () => {
-            const w100Providers = ['aliyun', 'huawei', 'qcloud', 'aws']
+            const w100Providers = ['aliyun', 'huawei', 'qcloud', 'aws', 'onecloud']
             let maxWeight = 256
             if (this.data && this.data.provider) {
               if (w100Providers.includes(this.data.provider.toLowerCase())) {

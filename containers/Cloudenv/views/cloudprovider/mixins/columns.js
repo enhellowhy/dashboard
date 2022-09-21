@@ -20,7 +20,7 @@ export default {
       }),
       {
         field: 'account',
-        title: i18n.t('cloudenv.text_353'),
+        title: i18n.t('cloudenv.users.id'),
         showOverflow: 'ellipsis',
         minWidth: 160,
         slots: {

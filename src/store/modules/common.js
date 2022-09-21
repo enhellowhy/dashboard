@@ -162,7 +162,7 @@ export default {
       try {
         const response = await manager.list({
           params: {
-            type: ['common', 'meter', 'identity'],
+            type: ['common', 'meter-li', 'identity'],
           },
         })
         const resData = response?.data?.data
@@ -175,7 +175,7 @@ export default {
           const config = (configResponse.data.config && configResponse.data.config.default) || {}
           commit('SET_GLOBAL_CONFIG', config)
         }
-        const mneterId = resData.find(v => v.type === 'meter')?.id || ''
+        const mneterId = resData.find(v => v.type === 'meter-li')?.id || ''
         if (mneterId) {
           const configResponse = await manager.getSpecific({
             id: mneterId,

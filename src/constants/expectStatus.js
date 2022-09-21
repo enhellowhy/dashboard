@@ -173,8 +173,8 @@ export default {
     danger: ['failed', 'delete_failed'],
   },
   bucket: {
-    info: ['unknown'],
-    success: ['ready'],
+    info: ['unknown', false],
+    success: ['ready', true],
     danger: ['create_fail', 'deleted', 'delete_fail'],
   },
   hostImageCache: {
@@ -199,8 +199,24 @@ export default {
     danger: ['init'],
     success: ['verified'],
   },
+  workflowState: {
+    success: ['PENDING', 'COMPLETED'],
+    danger: ['SUBMIT_FAIL', 'CREATE_FAIL'],
+    // info: ['INIT', 'SUBMITTING', 'EXTERNALLY_TERMINATED'],
+    info: ['EXTERNALLY_TERMINATED'],
+  },
+  backendsState: {
+    success: ['正常'],
+    danger: ['异常'],
+    info: ['部分异常'],
+  },
   workflowBiz: {
     success: ['success'],
+  },
+  bpmBiz: {
+    success: ['提交', '同意', '流程结束'],
+    danger: ['终止', '拒绝', '驳回'],
+    info: ['审批中', ''],
   },
   billrate: {
     success: ['is_effective'],
@@ -221,6 +237,11 @@ export default {
     info: ['init', 'unavailable', 'unknown'],
   },
   scalingactivitie: {
+    success: ['part_succeed', 'succeed'],
+    danger: ['failed', 'delete_failed', 'deleted', 'reject'],
+    info: ['init', 'unavailable', 'unknown'],
+  },
+  clusteractivitie: {
     success: ['part_succeed', 'succeed'],
     danger: ['failed', 'delete_failed', 'deleted', 'reject'],
     info: ['init', 'unavailable', 'unknown'],

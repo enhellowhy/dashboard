@@ -8,6 +8,7 @@ export default {
   language: getLanguage(),
   themeColor: storage.get('__oc_theme_color__') || process.env.THEME_COLOR || '#1890FF',
   theme: storage.get('__oc_theme__') || process.env.THEME || 'dark',
-  brand: process.env.BRAND || { 'zh-CN': '云联壹云', en: 'YunionCloud' },
+  // brand: process.env.BRAND || { 'zh-CN': '云联壹云', en: 'YunionCloud' },
+  brand: process.env.BRAND || { 'zh-CN': '私有云控制台', en: 'Li Cloud' },
   l2MenuVisible: !R.isNil(_l2MenuVisible) && !R.isNil(_l2MenuVisible) ? _l2MenuVisible : true,
 }

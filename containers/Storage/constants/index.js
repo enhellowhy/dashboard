@@ -14,6 +14,18 @@ export const STORAGE_TYPES = {
   iscsi: 'iscsi',
 }
 
+// 对象用户选择配置
+export const CLOUDPROVIDER_TYPES_MAP = {
+  new: {
+    label: i18n.t('storage.bucket.owner.new'),
+    key: 'new',
+  },
+  specify: {
+    label: i18n.t('storage.bucket.owner.specify'),
+    key: 'specify',
+  },
+}
+
 export const MEDIUM_TYPES = {
   rotate: i18n.t('storage.text_6'),
   ssd: i18n.t('storage.text_7'),
@@ -33,6 +45,62 @@ export const ACL_TYPE = {
 }
 
 export const OSS_MONITOR_OPTS = {
+  xsky: [
+    {
+      name: 'allocated.size',
+      label: i18n.t('cloudenv.xsky.eos.samples.allocated.size'),
+      unit: 'B',
+      transfer: 1024,
+    },
+    {
+      name: 'allocated.objects',
+      label: i18n.t('cloudenv.xsky.eos.samples.allocated.objects'),
+      unit: 'b',
+      transfer: 1000,
+    },
+    {
+      name: 'rx.bandwidth.byte',
+      label: i18n.t('cloudenv.xsky.eos.samples.rx.bandwidth.byte'),
+      unit: 'bps',
+      transfer: 1024,
+    },
+    {
+      name: 'tx.bandwidth.byte',
+      label: i18n.t('cloudenv.xsky.eos.samples.tx.bandwidth.byte'),
+      unit: 'bps',
+      transfer: 1024,
+    },
+    {
+      name: 'rx.ops.pm',
+      label: i18n.t('cloudenv.xsky.eos.samples.rx.ops.pm'),
+      unit: ' 次',
+      transfer: 1,
+    },
+    {
+      name: 'tx.ops.pm',
+      label: i18n.t('cloudenv.xsky.eos.samples.tx.ops.pm'),
+      unit: ' 次',
+      transfer: 1,
+    },
+    {
+      name: 'list.ops.pm',
+      label: i18n.t('cloudenv.xsky.eos.samples.list.ops.pm'),
+      unit: ' 次',
+      transfer: 1,
+    },
+    {
+      name: 'del.ops.pm',
+      label: i18n.t('cloudenv.xsky.eos.samples.del.ops.pm'),
+      unit: ' 次',
+      transfer: 1,
+    },
+    {
+      name: 'latency.ms',
+      label: i18n.t('cloudenv.xsky.eos.samples.latency.ms'),
+      unit: 'ms',
+      transfer: 1000,
+    },
+  ],
   aliyun: [
     {
       name: 'GetObjectE2eLatency',

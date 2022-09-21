@@ -27,9 +27,10 @@ export default {
       return this.workflowEnabledKeys.includes(key)
     },
     async createWorkflow (variables) {
-      if (!this.$appConfig.isPrivate) return Promise.reject(new Error('no workflow'))
+      // if (!this.$appConfig.isPrivate) return Promise.reject(new Error('no workflow'))
       try {
-        const response = new this.$Manager('process-instances', 'v1').create({
+        const response = new this.$Manager('workflow_process_instances', 'v1').create({
+        // const response = new this.$Manager('process-instances', 'v1').create({
           data: {
             variables,
           },

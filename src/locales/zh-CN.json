@@ -544,7 +544,8 @@
     },
     "bucket": {
       "start_create": "开始创建",
-      "creating": "创建中",
+      "creating": "桶创建中",
+      "building": "用户创建中",
       "ready": "可用",
       "create_fail": "创建失败",
       "start_delete": "开始删除",
@@ -553,7 +554,9 @@
       "delete_failed": "删除失败",
       "snying": "同步中",
       "unknown": "未知状态",
-      "sync_status": "同步状态中"
+      "sync_status": "同步状态中",
+      "true": "已开启",
+      "false": "未开启"
     },
     "hostImageCache": {
       "init": "初始化中",
@@ -608,6 +611,16 @@
       "verifying": "验证中",
       "verified": "已验证"
     },
+    "workflowState": {
+      "PENDING": "流程处理中",
+      "COMPLETED": "结束",
+      "CREATING": "资源创建中",
+      "CHANGING": "资源调整中",
+      "INIT": "初始化",
+      "SUBMIT_FAIL": "提交流程失败",
+      "SUBMITTING": "提交流程",
+      "EXTERNALLY_TERMINATED": "已撤销"
+    },
     "workflowBiz": {
       "success": "成功",
       "fail": "失败",
@@ -647,6 +660,15 @@
       "create_failed": "创建失败",
       "delete_failed": "删除失败",
       "creating": "创建中"
+    },
+    "clusteractivitie": {
+      "init": "初始化",
+      "wait": "等待中",
+      "execution": "执行中",
+      "succeed": "成功",
+      "part_succeed": "部分成功",
+      "failed": "失败",
+      "reject": "拒绝"
     },
     "scalingactivitie": {
       "init": "初始化",
@@ -2309,6 +2331,9 @@
   "auth.secret.reset.prefix": "请在手机打开OneLogin Protect APP，获取MFA安全码。无法获取，请",
   "auth.secret.validate": "安全码错误，请重新输入",
   "auth.secret.loading": "正在验证",
+  "auth.noauth.title": "您没有权限登录，请联系管理员（王环宇）",
+  "auth.noauth.relogin.prefix": "如果权限已开通，请",
+  "auth.noauth.relogin": "重新登录",
   "auth.question.title": "请设置安全问题，用以重置安全码密钥时验证身份",
   "auth.question.set.success": "设置安全问题成功",
   "auth.question.answer.placeholder": "请输入答案，15个字以内",
@@ -2356,6 +2381,7 @@
     "guestimage": "主机镜像",
     "guestnetwork": "虚拟机网络",
     "host": "宿主机",
+    "hostcluster": "集群",
     "hostip": "宿主机IP",
     "hostwire": "宿主机二层网络",
     "identity_provider": "认证源",
@@ -2765,6 +2791,9 @@
       "SAS": "高IO云硬盘",
       "SATA": "普通IO云硬盘",
       "rbd": "Ceph RBD",
+      "rbd-hybrid": "高效云盘",
+      "rbd-ssd": "通用型 SSD",
+      "rbd-enhanced-ssd": "增强型 SSD",
       "gpfs": "GPFS",
       "issci": "issci",
       "CLOUD_NORMAL": "普通云盘",
@@ -2818,6 +2847,7 @@
       "feature_select": "功能选择",
       "docs": "产品手册",
       "about": "关于",
+      "work_order_mine": "我发起的",
       "work_order_undone": "未完成{num}条",
       "pending_work_order": "待审批{num}条",
       "pending_work_order-tech": "待处理{num}条",
@@ -4283,7 +4313,7 @@
   "common_397": "调整后配置",
   "common_399": "审批人",
   "common_400": "撤销工单",
-  "common_401": "审批结果",
+  "common_401": "审批结果(点击跳转流程中心)",
   "common_402": "执行结果",
   "common_403": "撤销",
   "common_404": "申请配额信息",
@@ -5040,5 +5070,11 @@
   "common.permission_tip": "权限提示",
   "common.permission_no_dashboard": "您无权访问控制台",
   "common.password_no_equal": "新旧密码不能一致",
-  "common.default_search_key": "默认为{0}搜索"
+  "common.default_search_key": "默认为{0}搜索",
+  "common.resources.creating": "资源创建中",
+  "common.resources.changing": "资源调整中",
+  "common.auditing": "审批中",
+  "common.rebuild_resource": "重建资源",
+  "common.bucket.apply": "存储桶申请",
+  "common.loadbalancer.apply": "负载均衡申请"
 }

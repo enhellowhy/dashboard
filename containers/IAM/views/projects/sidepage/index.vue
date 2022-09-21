@@ -38,6 +38,7 @@ import ColumnsMixin from '../mixins/columns'
 import ProjectDetail from './Detail'
 import ProjectDirectlyUnderUserList from './DirectlyUnderUserList'
 // import ProjectResourcesStatistics from './ResourcesStatistics'
+import ProjectUsagesStatistics from '@IAM/sections/ProjectUsageSidepage'
 import Quota from './Quota'
 
 export default {
@@ -47,6 +48,7 @@ export default {
     Actions,
     ProjectDirectlyUnderUserList,
     // ProjectResourcesStatistics,
+    ProjectUsagesStatistics,
     Quota,
   },
   mixins: [SidePageMixin, WindowsMixin, SingleActionsMixin, ColumnsMixin],
@@ -71,6 +73,7 @@ export default {
         { label: this.$t('common_492'), key: 'project-directly-under-user-list' },
         { label: this.$t('system.text_174'), key: 'quota' },
         // { label: this.$t('system.text_173'), key: 'project-resources-statistics' },
+        { label: this.$t('system.text_173'), key: 'project-usages-statistics' },
         { label: this.$t('system.text_17'), key: 'event-drawer' },
       ]
       if (!this.globalConfig.enable_quota_check) {

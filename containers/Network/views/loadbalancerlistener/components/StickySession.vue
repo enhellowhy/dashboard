@@ -23,7 +23,7 @@
 import i18n from '@/locales'
 
 export default {
-  name: 'LbStickySession',
+  name: 'nLbStickySession',
   props: {
     decorators: {
       type: Object,

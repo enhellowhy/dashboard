@@ -23,7 +23,7 @@ import * as R from 'ramda'
 import { uuid } from '@/utils/utils'
 
 export default {
-  name: 'LbListCell',
+  name: 'nLbListCell',
   props: {
     params: {
       type: Object,

@@ -1,7 +1,9 @@
 import http from '@/utils/http'
 import { getRequestT } from '@/utils/utils'
-const logo = require('@scope/images/cloudpod_logo.svg')
-const loginLogo = require('@scope/images/cloudpod_login_logo.svg')
+// const logo = require('@scope/images/cloudpod_logo.svg')
+// const loginLogo = require('@scope/images/cloudpod_login_logo.svg')
+const logo = require('@scope/images/li_logo.svg')
+const loginLogo = require('@scope/images/li_logo.svg')
 
 export default {
   state: {
@@ -63,9 +65,32 @@ export default {
     fetchWorkflowStatistics () {
       return Promise.resolve()
     },
-    fetchWorkflowEnabledKeys () {
-      return Promise.resolve()
+    async fetchWorkflowEnabledKeys ({ state }) {
+      try {
+        const response = await http.get('/v1/workflow_process_definitions', {
+          params: {
+            enabled: true,
+          },
+        })
+        const data = response.data.data || []
+        // Object.keys(data).forEach(function (key) {
+        //   console.log(key, data[key].key())
+        // })
+        const newList = data.map(item => {
+          console.log(item.key)
+          return item.key
+        })
+        state.workflow.enabledKeys = newList
+        // return state.info.projects.some(item => item.id === state.info.projectId && item.system_capable)
+        // return response.data.data
+      } catch (error) {
+        throw error
+      }
+      // return Promise.resolve()
     },
+    // fetchWorkflowEnabledKeys () {
+    //   return Promise.resolve()
+    // },
     fetchDictionary ({ commit }, payload) {
       return Promise.resolve()
     },

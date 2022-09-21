@@ -6,7 +6,8 @@ export function solWebConsole (manager, host, onData) {
     hostId = host.id
   }
   return {
-    label: i18n.t('compute.text_342'),
+    // label: i18n.t('compute.text_342'),
+    label: i18n.t('compute.text_1274'),
     permission: 'hosts_get_ipmi',
     action: () => {
       manager.objectRpc({

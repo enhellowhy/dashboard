@@ -1032,10 +1032,13 @@
   "network.topology.res_type.esxi": "ESXI Host",
   "network.topology.res_type.instancegroups": "Instancegroups",
   "network.topology.res_type.networkinterfaces": "Networkinterfaces",
-  "network.topology.start": "Start", 
+  "network.topology.start": "Start",
   "network.topology.end": "End",
   "network.topology": "Topology",
   "network.topology.view": "View",
   "network.topology.view.virtual": "Virtual",
-  "network.topology.view.pysical": "Pysical"
+  "network.topology.view.pysical": "Pysical",
+  "network.loadbalancers.cluster.type.share": "共享集群",
+  "network.loadbalancers.cluster.type.specify": "专属集群",
+  "network.loadbalancers.network.type.specify": "专用网段"
 }

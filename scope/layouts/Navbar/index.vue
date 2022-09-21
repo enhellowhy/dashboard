@@ -118,29 +118,33 @@
     <alertresource v-if="showAlertresource" :res_total="alertresource.total" :alert_total="alertrecords.total" class="navbar-item-icon primary-color-hover" />
     <!-- 消息中心 -->
     <notify-popover class="navbar-item-icon primary-color-hover" :notifyMenuTitleUsedText="notifyMenuTitleUsedText" v-if="showNotify" />
+    <!-- 工单 -->
+    <work-order-popover class="navbar-item-icon primary-color-hover" :workOrderMenuTitleUsedText="workOrderMenuTitleUsedText" v-if="workflowServiceEnable" />
     <!-- cloudshell -->
     <cloud-shell v-if="isAdminMode" class="navbar-item-icon primary-color-hover" />
-    <div class="navbar-item">
-      <a-dropdown :trigger="['click']">
-        <div class="navbar-item-trigger d-flex align-items-center justify-content-center">
-          <icon type="navbar-user" style="font-size: 24px;" />
-        </div>
-        <a-menu slot="overlay" @click="userMenuClick">
-          <a-sub-menu key="language">
-            <span slot="title"><a-icon class="mr-2 ml-2" type="global" /><span>{{$t('common_630')}}</span></span>
-            <a-menu-item key="3" @click="settingLanguageCH">
-              <span class="mr-2" style="cursor: pointer">简体中文</span><a-icon v-show="language === 'zh-CN'" type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
-            </a-menu-item>
-            <a-menu-item key="4" @click="settingLanguageEN">
-              <span class="mr-2" style="cursor: pointer">English</span><a-icon v-show="language === 'en'" type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
-            </a-menu-item>
-          </a-sub-menu>
-          <a-menu-item key="toClouduser"><a-icon class="mr-2 ml-2" type="cloud-upload" />{{ $t('scope.cloudid') }}</a-menu-item>
-          <a-menu-item key="handleUpdatePassword"><a-icon class="mr-2 ml-2" type="usergroup-delete" />{{ $t('scope.text_5') }}</a-menu-item>
-          <a-menu-item key="logout"><a-icon class="mr-2 ml-2" type="logout" />{{ $t('scope.text_6') }}</a-menu-item>
-        </a-menu>
-      </a-dropdown>
-    </div>
+    <!-- 用户 -->
+    <user-popover />
+<!--    <div class="navbar-item">-->
+<!--      <a-dropdown :trigger="['click']">-->
+<!--        <div class="navbar-item-trigger d-flex align-items-center justify-content-center">-->
+<!--          <icon type="navbar-user" style="font-size: 24px;" />-->
+<!--        </div>-->
+<!--        <a-menu slot="overlay" @click="userMenuClick">-->
+<!--          <a-sub-menu key="language">-->
+<!--            <span slot="title"><a-icon class="mr-2 ml-2" type="global" /><span>{{$t('common_630')}}</span></span>-->
+<!--            <a-menu-item key="3" @click="settingLanguageCH">-->
+<!--              <span class="mr-2" style="cursor: pointer">简体中文</span><a-icon v-show="language === 'zh-CN'" type="check-circle" theme="twoTone" twoToneColor="#52c41a" />-->
+<!--            </a-menu-item>-->
+<!--            <a-menu-item key="4" @click="settingLanguageEN">-->
+<!--              <span class="mr-2" style="cursor: pointer">English</span><a-icon v-show="language === 'en'" type="check-circle" theme="twoTone" twoToneColor="#52c41a" />-->
+<!--            </a-menu-item>-->
+<!--          </a-sub-menu>-->
+<!--          <a-menu-item key="toClouduser"><a-icon class="mr-2 ml-2" type="cloud-upload" />{{ $t('scope.cloudid') }}</a-menu-item>-->
+<!--          <a-menu-item key="handleUpdatePassword"><a-icon class="mr-2 ml-2" type="usergroup-delete" />{{ $t('scope.text_5') }}</a-menu-item>-->
+<!--          <a-menu-item key="logout"><a-icon class="mr-2 ml-2" type="logout" />{{ $t('scope.text_6') }}</a-menu-item>-->
+<!--        </a-menu>-->
+<!--      </a-dropdown>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -150,8 +154,11 @@ import * as R from 'ramda'
 import { mapGetters, mapState } from 'vuex'
 import Alertresource from '@/sections/Navbar/components/Alertresource'
 import { setLanguage } from '@/utils/common/cookie'
+import { uuid } from '@/utils/utils'
 import CloudShell from '@/sections/Navbar/components/CloudShell'
 import NotifyPopover from '@/sections/Navbar/components/NotifyPopover'
+import UserPopover from '@/sections/Navbar/components/UserPopover'
+import WorkOrderPopover from '@/sections/Navbar/components/WorkOrderPopover'
 import WindowsMixin from '@/mixins/windows'
 
 export default {
@@ -160,6 +167,8 @@ export default {
     CloudShell,
     Alertresource,
     NotifyPopover,
+    UserPopover,
+    WorkOrderPopover,
   },
   mixins: [WindowsMixin],
   props: {
@@ -172,6 +181,10 @@ export default {
       default: true,
     },
     notifyMenuTitleUsedText: {
+      type: Boolean,
+      default: false,
+    },
+    workOrderMenuTitleUsedText: {
       type: Boolean,
       default: false,
     },
@@ -234,6 +247,10 @@ export default {
     language () {
       return this.setting.language
     },
+    workflowServiceEnable () {
+      const workflow = (this.userInfo.services || []).find(v => v.type === 'workflow' && v.status === true)
+      return !!workflow
+    },
     showAlertresource () {
       if (this.alertrecords && this.alertrecords.total > 0) {
         return true
@@ -258,12 +275,29 @@ export default {
       },
       immediate: true,
     },
+    'userInfo.id' (val) {
+      this.checkWorkflow(val)
+      this.fetchOEM(val)
+      if (this.checkLicense) {
+        this.fetchLicense(val)
+      }
+      this.pushApiServerUrlAlert(val)
+    },
   },
   created () {
+    this.checkWorkflow(this.userInfo.id)
     this.pushApiServerUrlAlert(this.userInfo.id)
     this.cronjobFetchAlerts()
   },
   methods: {
+    checkWorkflow (val) {
+      // if (!this.itsmServiceEnable) return
+      if (!this.workflowServiceEnable) return
+      if (val) {
+        this.$store.dispatch('app/fetchWorkflowStatistics')
+        this.$store.dispatch('app/fetchWorkflowEnabledKeys', { $t: uuid() })
+      }
+    },
     async userMenuClick (item) {
       if (item.key === 'logout') {
         try {

@@ -1,7 +1,7 @@
 <template>
   <base-side-page
     @cancel="cancelSidePage"
-    :title="$t('cloudenv.text_318')"
+    :title="getTitle"
     icon="onecloud"
     :res-name="detailData.name"
     :actions="params.actions"
@@ -20,8 +20,9 @@
 import ColumnsMixin from '../mixins/columns'
 import SingleActionsMixin from '../mixins/singleActions'
 import CloudaccountDetail from './Detail'
-import CloudaccountQuotaList from './QuotaList'
-import Usage from '@Cloudenv/sections/UsageSidepage'
+// import CloudaccountQuotaList from './QuotaList'
+import Monitor from './Monitor'
+import Usage from '@Cloudenv/sections/XskyCloudproviderUsageSidepage'
 import CloudproviderregionList from '@Cloudenv/views/cloudproviderregion/components/List'
 import SidePageMixin from '@/mixins/sidePage'
 import WindowsMixin from '@/mixins/windows'
@@ -33,22 +34,46 @@ export default {
     Actions,
     CloudaccountDetail,
     CloudproviderregionList,
-    CloudaccountQuotaList,
+    // CloudaccountQuotaList,
+    Monitor,
     Usage,
   },
   mixins: [SidePageMixin, WindowsMixin, ColumnsMixin, SingleActionsMixin],
-  data () {
-    return {
-      detailTabs: [
+  // data () {
+  //   return {
+  //     detailTabs: [
+  //       { label: this.$t('cloudenv.text_237'), key: 'cloudaccount-detail' },
+  //       { label: this.$t('cloudenv.text_10'), key: 'cloudproviderregion-list' },
+  //       // { label: this.$t('cloudenv.text_362'), key: 'cloudaccount-quota-list' },
+  //       { label: this.$t('cloudenv.text_319'), key: 'usage' },
+  //       { label: this.$t('cloudenv.xsky.monitor'), key: 'monitor' },
+  //       { label: this.$t('cloudenv.text_15'), key: 'event-drawer' },
+  //     ],
+  //   }
+  // },
+  computed: {
+    getTitle () {
+      if (this.detailData.provider === 'Xsky') {
+        return this.$t('cloudenv.users')
+      }
+      return this.$t('cloudenv.text_318')
+    },
+    detailTabs () {
+      const data = this.detailData
+      const detailTabs = [
         { label: this.$t('cloudenv.text_237'), key: 'cloudaccount-detail' },
         { label: this.$t('cloudenv.text_10'), key: 'cloudproviderregion-list' },
-        { label: this.$t('cloudenv.text_362'), key: 'cloudaccount-quota-list' },
         { label: this.$t('cloudenv.text_319'), key: 'usage' },
-        { label: this.$t('cloudenv.text_15'), key: 'event-drawer' },
-      ],
-    }
-  },
-  computed: {
+        // { label: this.$t('cloudenv.text_362'), key: 'cloudaccount-quota-list' },
+        // { label: this.$t('cloudenv.xsky.monitor'), key: 'monitor' },
+        // { label: this.$t('cloudenv.text_15'), key: 'event-drawer' },
+      ]
+      if (data.provider === 'Xsky') {
+        detailTabs.splice(detailTabs.length - 1, 0, { label: this.$t('cloudenv.xsky.monitor'), key: 'monitor' })
+      }
+      detailTabs.push({ label: this.$t('cloudenv.text_15'), key: 'event-drawer' })
+      return detailTabs
+    },
     getParams () {
       if (this.params.windowData.currentTab === 'cloudproviderregion-list') {
         return () => {

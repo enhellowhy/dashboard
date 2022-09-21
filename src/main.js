@@ -62,7 +62,8 @@ async function start () {
 
 window.app = app
 window.buildInfo = process.env.VUE_APP_BUILDINFO
-document.title = process.env.VUE_APP_IS_PRIVATE ? '' : 'Cloudpods'
+// document.title = process.env.VUE_APP_IS_PRIVATE ? '' : 'Cloudpods'
+document.title = process.env.VUE_APP_IS_PRIVATE ? '' : '理想汽车私有云平台'
 window.env = process.env
 
 start()

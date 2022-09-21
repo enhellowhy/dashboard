@@ -145,7 +145,7 @@ export default {
     },
     UPDATE_LOGGED_USERS (state, payload) {
       // 如果是sso登录则不保存信息
-      // if (state.auth && state.auth.is_sso) return
+      if (state.auth && state.auth.is_sso) return
       const newVal = { ...state.loggedUsers }
       if (payload.action === 'delete') {
         removeKeyIgnoreCase(newVal, payload.key)
@@ -346,6 +346,7 @@ export default {
           key: getters.currentLoggedUserKey,
           value: {
             displayname: state.info.displayname,
+            avatar: state.info.avatar,
             projectName: state.info.projectName,
             projectDomain: state.info.projectDomain,
             domain: state.info.domain || {},

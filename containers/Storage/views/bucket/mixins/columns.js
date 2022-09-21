@@ -30,6 +30,34 @@ export default {
         },
       },
       {
+        field: 'worm',
+        title: i18n.t('storage.xsky.eos.worm'),
+        width: 120,
+        slots: {
+          default: ({ row }, h) => {
+            return [
+              <div class='text-truncate'>
+                <status status={ row.worm } statusModule='bucket' />
+              </div>,
+            ]
+          },
+        },
+      },
+      {
+        field: 'versioned',
+        title: i18n.t('storage.xsky.eos.versioned'),
+        width: 120,
+        slots: {
+          default: ({ row }, h) => {
+            return [
+              <div class='text-truncate'>
+                <status status={ row.versioned } statusModule='bucket' />
+              </div>,
+            ]
+          },
+        },
+      },
+      {
         field: 'acl',
         title: i18n.t('storage.text_93'),
         width: 120,

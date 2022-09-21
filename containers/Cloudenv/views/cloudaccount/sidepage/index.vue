@@ -33,7 +33,7 @@ import SingleActionsMixin from '../mixins/singleActions'
 import CloudaccountDetail from './Detail'
 import HostList from './Host'
 import CloudproviderList from '@Cloudenv/views/cloudprovider/components/List'
-import Usage from '@Cloudenv/sections/UsageSidepage'
+import Usage from '@Cloudenv/sections/XskyCloudaccountUsageSidepage'
 import SidePageMixin from '@/mixins/sidePage'
 import WindowsMixin from '@/mixins/windows'
 import Actions from '@/components/PageList/Actions'
@@ -69,10 +69,11 @@ export default {
       const detailTabs = [
         { label: this.$t('cloudenv.text_237'), key: 'cloudaccount-detail' },
         { label: this.$t('cloudenv.text_319'), key: 'usage' },
-        { label: this.$t('cloudenv.text_318'), key: 'cloudprovider-list' },
-        { label: this.$t('cloudenv.text_386'), key: 'externalproject-list' },
+        { label: this.$t('cloudenv.users'), key: 'cloudprovider-list' },
+        // { label: this.$t('cloudenv.text_318'), key: 'cloudprovider-list' },
+        // { label: this.$t('cloudenv.text_386'), key: 'externalproject-list' },
       ]
-      if (platform === 'idc' || platform === 'private') {
+      if ((platform === 'idc' && data.provider !== 'Xsky') || (platform === 'private' && data.provider !== 'Xsky')) {
         detailTabs.splice(1, 0, { label: this.$t('cloudenv.text_101'), key: 'host-list' })
       }
       if ((this.$store.getters.capability.saml_auth_brands || []).includes(data.provider) && data.saml_auth) {

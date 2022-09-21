@@ -42,18 +42,33 @@ export default {
         title: this.$t('common_392'),
         minWidth: 40,
         showOverflow: 'title',
+        slots: {
+          default: ({ row }, h) => {
+            return this.getAssigneeHandle(row)
+          },
+        },
       },
       {
-        field: 'task_approved',
+        // field: 'task_approved',
+        field: 'command_message',
         title: this.$t('common_364'),
         minWidth: 40,
         showOverflow: 'title',
         slots: {
           default: ({ row }, h) => {
-            if (R.isNil(row.task) || R.isNil(row.task.local_variables)) {
-              return '-'
+            if (R.isNil(row.command_message) || row.command_message === '') {
+              return [
+                <div>
+                  <status status='审批中' statusModule={'bpmBiz'}/>
+                </div>,
+              ]
             } else {
-              return this.getApproveHandle(row)
+              return [
+                // <div class="d-flex"><status status={ bizStatus } statusModule={ 'workflowBiz' } />{ bizStatus === 'fail' ? tooltip : null }</div>,
+                <div>
+                  <status status={row.command_message} statusModule={'bpmBiz'}/>
+                </div>,
+              ]
             }
           },
         },
@@ -64,14 +79,28 @@ export default {
         minWidth: 80,
         showOverflow: 'title',
         formatter: ({ cellValue, row }) => {
-          if (R.isNil(row.task.local_variables) || R.isNil(row.task.local_variables.comment)) return '-'
+          if (R.isNil(row.task) || R.isNil(row.task.local_variables) || R.isNil(row.task.local_variables.comment)) return '-'
           return row.task.local_variables.comment
         },
       },
-      getTimeTableColumn({ field: 'end_time', title: this.$t('common_393') }),
+      getTimeTableColumn({ field: 'end_time', title: this.$t('common_393'), minWidth: 105 }),
     ]
   },
   methods: {
+    getAssigneeHandle (row, msg) {
+      const assignees = []
+      if (R.isNil(row.task_assignee_name) || R.isNil(row.task_assignee_avatar)) return '--'
+      if (row.task_assignee_name.length > 1) {
+        row.task_assignee_avatar.forEach((item) => {
+          assignees.push(<a-avatar src={item} />)
+        })
+      } else {
+        assignees.push(<span><a-avatar src={row.task_assignee_avatar[0]} /></span>)
+        assignees.push(<span>&nbsp;&nbsp;</span>)
+        assignees.push(<span>{row.task_assignee_name[0]}</span>)
+      }
+      return assignees
+    },
     getApproveHandle (row, msg) {
       const statusObj = approveStatusMap[`${row.activity_id}`]
       const approved = row.task.local_variables.approved
@@ -165,7 +194,7 @@ export default {
     display: block;
     font-size: 12px;
     color: #999;
-    margin-left: '3px';
+    margin-left: 3px;
     cursor: pointer;
   }
 }

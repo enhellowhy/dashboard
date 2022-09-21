@@ -46,7 +46,7 @@ import WindowsMixin from '@/mixins/windows'
 const getOnOff = bool => bool ? 'on' : 'off'
 
 export default {
-  name: 'LbListenerFormDialog',
+  name: 'nLbListenerFormDialog',
   components: {
     Onecloud,
     Aliyun,

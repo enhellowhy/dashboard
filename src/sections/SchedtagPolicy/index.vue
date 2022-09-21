@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { SCHEDTAG_POLICY_OPTIONS } from '@/constants'
+import { SCHEDTAG_POLICY_OPTIONS, SCHEDTAG_REQUIRE_OPTION } from '@/constants'
 
 export default {
   name: 'SchedtagPolicy',
@@ -46,11 +46,20 @@ export default {
       type: Boolean,
       default: () => true,
     },
+    schedtagRequireOpt: {
+      type: Array,
+      default: () => ([]),
+    },
   },
   data () {
     return {
       policyOpts: SCHEDTAG_POLICY_OPTIONS,
       schedtagItem: {},
+    }
+  },
+  created () {
+    if (this.schedtagRequireOpt.length !== 0) {
+      this.policyOpts = this.schedtagRequireOpt
     }
   },
   methods: {
@@ -62,6 +71,9 @@ export default {
             if (!this.policyOpts.find(val => val.key === defaultStrategy)) {
               defaultStrategy = undefined
             }
+          }
+          if (this.policyOpts === SCHEDTAG_REQUIRE_OPTION) {
+            defaultStrategy = 'require'
           }
           this.form.fc.getFieldDecorator(this.decorators.policy[0], this.decorators.policy[1])
           if (this.policyReactInSchedtag) {

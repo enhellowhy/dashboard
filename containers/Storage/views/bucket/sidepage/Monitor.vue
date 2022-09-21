@@ -20,10 +20,10 @@
 import _ from 'lodash'
 import * as R from 'ramda'
 import { OSS_MONITOR_OPTS } from '@Storage/constants'
-import { UNITS, autoComputeUnit, getRequestT } from '@/utils/utils'
+import { UNITS, autoComputeUnit } from '@/utils/utils'
 import Monitor from '@/sections/Monitor'
 import WindowsMixin from '@/mixins/windows'
-import { HYPERVISORS_MAP } from '@/constants'
+import { HYPERVISORS_MAP, EXTRA_HYPERVISORS } from '@/constants'
 import { getSignature } from '@/utils/crypto'
 
 export default {
@@ -43,13 +43,15 @@ export default {
       loading: false,
       time: '168h',
       timeGroup: '30m',
+      // time: '1h',
+      // timeGroup: '5m',
       monitorList: [],
     }
   },
   computed: {
     hadMonitor () {
       const brand = this.data.brand.toLowerCase()
-      const surportBrand = [HYPERVISORS_MAP.aliyun.key, HYPERVISORS_MAP.huawei.key, HYPERVISORS_MAP.apsara.key]
+      const surportBrand = [HYPERVISORS_MAP.aliyun.key, HYPERVISORS_MAP.huawei.key, HYPERVISORS_MAP.apsara.key, EXTRA_HYPERVISORS.xsky.key]
       return surportBrand.includes(brand)
     },
     monitorConstants () {
@@ -70,27 +72,35 @@ export default {
   },
   methods: {
     async fetchData () {
-      this.loading = true
-      const resList = []
-      for (let idx = 0; idx < this.monitorConstants.length; idx++) {
-        const val = this.monitorConstants[idx]
-        try {
-          const { data } = await new this.$Manager('unifiedmonitors', 'v1')
-            .performAction({
-              id: 'query',
-              action: '',
-              data: this.genQueryData(val),
-              params: { $t: getRequestT() },
-            })
-          resList.push({ title: val.label, constants: val, series: data.series })
+      try {
+        this.loading = true
+        const { data } = await new this.$Manager('buckets')
+          .performAction({
+            id: this.dbId,
+            action: 'monitor',
+            data: {
+              from: this.time,
+              interval: this.timeGroup,
+            },
+          })
+        const keyPrefix = 'xsky.eos.os_buckets.samples'
+        const resList = []
+        for (let idx = 0; idx < this.monitorConstants.length; idx++) {
+          const val = this.monitorConstants[idx]
+          const key = `${keyPrefix}.${val.name}`
+          resList.push({
+            title: val.label,
+            constants: val,
+            series: data[key],
+          })
           if (idx === this.monitorConstants.length - 1) {
             this.loading = false
             this.getMonitorList(resList)
           }
-        } catch (error) {
-          this.loading = false
-          throw error
         }
+      } catch (error) {
+        this.loading = false
+        throw error
       }
     },
     baywatch (props, watcher) {

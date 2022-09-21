@@ -88,6 +88,14 @@ export default {
     if (this.$route.query.result === 'success') {
       await this.$store.dispatch('auth/onAfterLogin')
       this.statusLoaded = true
+    } else if (this.$route.query.result === 'error' && this.$route.query.error_class === 'UnauthorizedError') {
+      this.$router.replace({
+        path: '/auth/noauth',
+        query: {
+          rf: this.$route.query.rf,
+        },
+      })
+      this.statusLoaded = true
     } else {
       this.checkRegistersStatus()
     }

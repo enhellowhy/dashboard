@@ -62,7 +62,7 @@ import WindowsMixin from '@/mixins/windows'
 import { findPlatform } from '@/utils/common/hypervisor'
 
 export default {
-  name: 'LoadbalancerbackendCreateDialog',
+  name: 'nLoadbalancerbackendCreateDialog',
   mixins: [DialogMixin, WindowsMixin],
   data () {
     return {

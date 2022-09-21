@@ -25,7 +25,7 @@ export const getResourceNameTableColumn = ({ field = 'resource_name', title = i1
     slots: {
       default: ({ row }, h) => {
         if (!row.variables) return '-'
-        const paramter = row.variables['server-create-paramter'] || row.variables.parameter
+        const paramter = row.variables['server-create-paramter'] || row.variables.paramter
         const rs = paramter ? JSON.parse(paramter) : {}
         let name = rs.generate_name || rs.name
         if (Array.isArray(rs)) {

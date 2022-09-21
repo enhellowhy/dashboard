@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: 'LbListenerType',
+  name: 'nLbListenerType',
   props: {
     decorators: {
       type: Object,
@@ -20,8 +20,8 @@ export default {
       default: () => [
         { label: 'TCP', key: 'tcp' },
         { label: 'UDP', key: 'udp' },
-        { label: 'HTTP', key: 'http' },
-        { label: 'HTTPS', key: 'https' },
+        // { label: 'HTTP', key: 'http' },
+        // { label: 'HTTPS', key: 'https' },
       ],
     },
     disabled: {

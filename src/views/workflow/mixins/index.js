@@ -15,18 +15,18 @@ export default {
           name: 'me-process',
           label: i18n.t('common_412'),
         },
-        {
-          name: 'approval-start',
-          label: i18n.t('common_203'),
-        },
-        {
-          name: 'approved-done',
-          label: i18n.t('common_413'),
-        },
-        {
-          name: 'me-partake',
-          label: i18n.t('common_414'),
-        },
+        // {
+        //   name: 'approval-start',
+        //   label: i18n.t('common_203'),
+        // },
+        // {
+        //   name: 'approved-done',
+        //   label: i18n.t('common_413'),
+        // },
+        // {
+        //   name: 'me-partake',
+        //   label: i18n.t('common_414'),
+        // },
       ]
       if (this.isAdminMode) {
         tablePanels.push({

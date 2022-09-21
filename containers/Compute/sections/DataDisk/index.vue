@@ -217,6 +217,9 @@ export default {
         if ((hyper === HYPERVISORS_MAP.kvm.key || hyper === HYPERVISORS_MAP.cloudpods.key) && type === 'local' && this.isSomeLocal(currentTypes)) {
           opt = hypervisorDisks[`${type}-${medium}`] // kvm 区分多种介质的硬盘
         }
+        if ((hyper === HYPERVISORS_MAP.kvm.key || hyper === HYPERVISORS_MAP.cloudpods.key) && type === 'rbd') {
+          continue // 屏蔽kvm rbd
+        }
         if (opt) {
           const min = Math.max(DISK_MIN_SIZE, opt.min)
           let max = opt.max

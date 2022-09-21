@@ -3,6 +3,8 @@ import i18n from '@/locales'
 
 export const WORKFLOW_TYPES = {
   APPLY_MACHINE: 'apply-machine',
+  APPLY_BUCKET: 'apply-bucket',
+  APPLY_LOADBALANCER: 'apply-loadbalancer',
   APPLY_PROJECT_QUOTA: 'apply-project-quota',
   APPLY_DOMAIN_QUOTA: 'apply-domain-quota',
   APPLY_JOIN_PROJECT: 'apply-join-project',
@@ -36,6 +38,14 @@ export const PROCESS_TYPES_OPTS = [
   {
     name: i18n.t('common.text00036'),
     value: WORKFLOW_TYPES.CUSTOMER_SERVICE,
+  },
+  {
+    name: i18n.t('common.bucket.apply'),
+    value: WORKFLOW_TYPES.APPLY_BUCKET,
+  },
+  {
+    name: i18n.t('common.loadbalancer.apply'),
+    value: WORKFLOW_TYPES.APPLY_LOADBALANCER,
   },
 ]
 

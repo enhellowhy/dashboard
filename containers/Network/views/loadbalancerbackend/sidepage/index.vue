@@ -34,7 +34,7 @@ import WindowsMixin from '@/mixins/windows'
 import Actions from '@/components/PageList/Actions'
 
 export default {
-  name: 'LoadbalancerbackendSidePage',
+  name: 'nLoadbalancerbackendSidePage',
   components: {
     LoadbalancerbackendDetail,
     Actions,

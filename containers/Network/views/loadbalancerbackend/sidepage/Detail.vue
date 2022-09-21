@@ -11,7 +11,7 @@ import { getCopyWithContentTableColumn, getBrandTableColumn } from '@/utils/comm
 import WindowsMixin from '@/mixins/windows'
 
 export default {
-  name: 'LoadbalancerbackendDetail',
+  name: 'nLoadbalancerbackendDetail',
   mixins: [WindowsMixin],
   props: {
     data: {

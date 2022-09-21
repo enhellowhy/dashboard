@@ -251,7 +251,10 @@ export default {
             })
           }
           const sshActions = mapIpActions(ipInfoList)
-          ret = ret.concat(sshActions)
+          if (this.isAdminMode) {
+            ret = ret.concat(sshActions)
+          }
+          // ret = ret.concat(sshActions)
           return ret
         },
         meta: (obj) => {

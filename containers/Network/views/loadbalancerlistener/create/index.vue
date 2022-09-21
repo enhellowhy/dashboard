@@ -35,7 +35,7 @@ import { filterObj } from '@/utils/utils'
 const getOnOff = bool => bool ? 'on' : 'off'
 
 export default {
-  name: 'LbCreateIndex',
+  name: 'nLbCreateIndex',
   components: {
     Onecloud,
     Aliyun,

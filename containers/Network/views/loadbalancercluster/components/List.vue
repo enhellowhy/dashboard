@@ -19,7 +19,7 @@ import WindowsMixin from '@/mixins/windows'
 import { getDescriptionFilter, getCreatedAtFilter } from '@/utils/common/tableFilter'
 
 export default {
-  name: 'LoadbalancerclusterList',
+  name: 'nLoadbalancerclusterList',
   mixins: [WindowsMixin, ListMixin, ColumnsMixin, SingleActionsMixin],
   props: {
     id: String,

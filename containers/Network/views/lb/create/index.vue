@@ -20,7 +20,7 @@ import Private from './form/Private'
 import { getCloudEnvOptions } from '@/utils/common/hypervisor'
 
 export default {
-  name: 'LbCreate',
+  name: 'nLbCreate',
   components: {
     IDC,
     Public,

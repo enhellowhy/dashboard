@@ -2,8 +2,9 @@
   <div class="login-index-wrap flex-fill d-flex h-100 align-items-center" v-loading.fullscreen="!regionsLoading">
     <div class="login-index-left d-flex flex-fill align-items-center pl-4 pr-4 pt-4" :style="{backgroundImage: loginBg}">
       <div>
-        <h2 :style="{ color: getI18nColorVal(companyInfo, 'login_page_slogan') }">{{ getI18nVal(companyInfo, 'login_page_slogan') || $t('login.desc1') }}</h2>
-        <h4 :style="{ color: getI18nColorVal(companyInfo, 'login_page_sub_slogan') }">{{ getI18nVal(companyInfo, 'login_page_sub_slogan') || $t('login.desc2') }}</h4>
+<!--        <h2 :style="{ color: getI18nColorVal(companyInfo, 'login_page_slogan') }">{{ getI18nVal(companyInfo, 'login_page_slogan') || $t('login.desc1') }}</h2>-->
+<!--        <h4 :style="{ color: getI18nColorVal(companyInfo, 'login_page_sub_slogan') }">{{ getI18nVal(companyInfo, 'login_page_sub_slogan') || $t('login.desc2') }}</h4>-->
+<!--        <img class="auth-header-logo" :src="loginLogo" />-->
       </div>
     </div>
     <div class="login-index-right d-flex flex-column shadow-lg bg-white rounded">
@@ -33,9 +34,9 @@
 <script>
 import * as R from 'ramda'
 import { mapGetters, mapState } from 'vuex'
-import { getLoginDomain } from '@/utils/common/cookie'
+import { setLoginDomain, getLoginDomain } from '@/utils/common/cookie'
 import { getI18nVal, getI18nColorVal } from '@/utils/i18n'
-import { getLoginModeInStorage } from '@/utils/auth'
+import { getLoginModeInStorage, setSsoIdpIdInCookie } from '@/utils/auth'
 
 export default {
   name: 'AccountIndex',
@@ -69,6 +70,9 @@ export default {
         return this.$t('auth.chooser')
       }
       return this.$t('auth.login')
+    },
+    showDomainChooser () {
+      return !this.regions.return_full_domains
     },
     loginDomain () {
       if (this.$route.query.domain) {
@@ -140,6 +144,7 @@ export default {
     } catch (error) {
       this.regionsLoading = true
     }
+    // const data = Object.entries(this.loggedUsers)
     // 查看SSO登录跳转回来后的query信息，是否有error
     const { query, path } = this.$route
     const { result, error_class } = query
@@ -161,6 +166,15 @@ export default {
     this.switchLoginMode()
   },
   methods: {
+    handleClickIdp (idpItem) {
+      if (this.loginDomain && this.showDomainChooser) {
+        setLoginDomain(this.loginDomain)
+      }
+      const { origin, search } = window.location
+      const { id } = idpItem
+      setSsoIdpIdInCookie(id)
+      window.location.href = `${origin}/api/v1/auth/sso/redirect/${id}${search || ''}`
+    },
     gethost (str) {
       if (str.startsWith('http://')) {
         return str.substr(7)

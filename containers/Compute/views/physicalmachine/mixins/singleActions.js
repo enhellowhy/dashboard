@@ -28,7 +28,7 @@ export default {
             ret.push(solWebConsole(this.webconsoleManager, obj, this.openWebConsole, this.createDialog))
           }
           let ips = (obj.server_ips || '').split(',').filter(item => !!item)
-          if (obj.access_ip) {
+          if (obj.access_ip && !ips.includes(obj.access_ip)) {
             ips = [obj.access_ip, ...ips]
           }
           const actionGenerator = ip => {

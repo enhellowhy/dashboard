@@ -26,7 +26,7 @@ import _ from 'lodash'
 import i18n from '@/locales'
 
 export default {
-  name: 'LbAcl',
+  name: 'nLbAcl',
   props: {
     lbDetail: {
       type: Object,

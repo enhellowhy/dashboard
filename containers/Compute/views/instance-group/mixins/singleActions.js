@@ -1,7 +1,11 @@
+import { mapGetters } from 'vuex'
 import { getEnabledSwitchActions } from '@/utils/common/tableActions'
 import i18n from '@/locales'
 
 export default {
+  computed: {
+    ...mapGetters(['isAdminMode', 'isDomainMode']),
+  },
   created () {
     this.singleActions = [
       {
@@ -52,6 +56,38 @@ export default {
                 return ret
               },
               // hidden: this.$isScopedPolicyMenuHidden('vminstance_hidden_menus.server_add_network_card'),
+            },
+            {
+              label: this.$t('compute.perform_change_owner', [this.$t('dictionary.project')]),
+              // permission: 'server_perform_change_owner',
+              action: () => {
+                this.createDialog('ChangeOwenrDialog', {
+                  data: [obj],
+                  columns: this.columns,
+                  onManager: this.onManager,
+                  name: this.$t('dictionary.instancegroup'),
+                  resource: 'instancegroups',
+                })
+              },
+              meta: () => {
+                const ret = {
+                  validate: false,
+                  tooltip: null,
+                }
+                if (!this.isAdminMode && !this.isDomainMode) {
+                  ret.tooltip = i18n.t('compute.text_613')
+                  return ret
+                }
+                if (obj.guest_count !== 0) {
+                  ret.tooltip = i18n.t('compute.group.changeowner.tooltip')
+                  return ret
+                }
+
+                // if (commonUnabled(obj)) return ret
+                ret.validate = true
+                return ret
+              },
+              hidden: () => this.$isScopedPolicyMenuHidden('vminstance_hidden_menus.server_perform_change_owner'),
             },
             {
               label: i18n.t('compute.text_1179'),

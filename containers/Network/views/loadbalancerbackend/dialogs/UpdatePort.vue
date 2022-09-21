@@ -23,7 +23,7 @@ import WindowsMixin from '@/mixins/windows'
 import expectStatus from '@/constants/expectStatus'
 
 export default {
-  name: 'BackendUpdatePortDialog',
+  name: 'nBackendUpdatePortDialog',
   components: {
   },
   mixins: [DialogMixin, WindowsMixin],

@@ -23,6 +23,12 @@ export default {
         },
         meta: obj => {
           const provider = obj.provider?.toLowerCase()
+          if (this.isProjectMode) {
+            return {
+              validate: false,
+              tooltip: this.$t('compute.text_646'),
+            }
+          }
           if (diskResizeConfig[provider]) {
             return {
               validate: diskResizeConfig[provider](obj).validate,

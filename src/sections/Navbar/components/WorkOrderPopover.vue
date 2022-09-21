@@ -38,30 +38,32 @@
             </ul>
           </template>
           <!-- 待处理工单 -->
-          <template v-if="isShowWorkflow">
+<!--          <template v-if="isShowWorkflow">-->
+          <template>
             <div class="mt-2 text-color-help" style="font-size: 12px;"><a-icon type="user" /><span class="ml-2">{{$t('navbar.tips.pending_work_order')}}</span></div>
             <ul class="work-list">
-              <i18n path="navbar.button.work_order_undone" tag="li" @click="goHistoricProcess">
-                <template #num>
-                  <a>{{workflowStatistics['nr-historic-process-instance'] || 0}}</a>
-                </template>
+              <i18n path="navbar.button.work_order_mine" tag="li" @click="goHistoricProcess">
+<!--              <i18n path="navbar.button.work_order_undone" tag="li" @click="goHistoricProcess">-->
+<!--                <template #num>-->
+<!--                  <a>{{workflowStatistics['nr-historic-process-instance'] || 0}}</a>-->
+<!--                </template>-->
               </i18n>
-              <i18n path="navbar.button.pending_work_order" tag="li" @click="goProcessTask">
-                <template #num>
-                  <a>{{workflowStatistics['nr-process-task'] || 0}}</a>
-                </template>
-              </i18n>
+<!--              <i18n path="navbar.button.pending_work_order" tag="li" @click="goProcessTask">-->
+<!--                <template #num>-->
+<!--                  <a>{{workflowStatistics['nr-process-task'] || 0}}</a>-->
+<!--                </template>-->
+<!--              </i18n>-->
             </ul>
           </template>
-          <template v-if="!isAdminMode && (isShowWorkflow || customerServiceEnabled)">
-            <div class="mt-2 text-color-help" style="font-size: 12px;"><a-icon type="plus" /><span class="ml-2">{{$t('common_204')}}</span></div>
-            <ul class="work-list">
-              <li @click="joinProjectHandle" v-if="isProjectMode && projectEnabled">{{$t('navbar.button.join_project')}}</li>
-              <li @click="customeServiceHandle" v-if="customerServiceEnabled">{{$t('navbar.button.work_order_support')}}</li>
-              <li @click="applyProjectQuotaHandle" v-if="isProjectMode && projectQuotaEnabled">{{$t('navbar.button.work_order_apply_project_quota')}}</li>
-              <li @click="applyDomainQuotaHandle" v-if="isDomainMode && domainQuotaEnabled">{{$t('navbar.button.work_order_apply_domain_quota')}}</li>
-            </ul>
-          </template>
+<!--          <template v-if="!isAdminMode && (isShowWorkflow || customerServiceEnabled)">-->
+<!--            <div class="mt-2 text-color-help" style="font-size: 12px;"><a-icon type="plus" /><span class="ml-2">{{$t('common_204')}}</span></div>-->
+<!--            <ul class="work-list">-->
+<!--              <li @click="joinProjectHandle" v-if="isProjectMode && projectEnabled">{{$t('navbar.button.join_project')}}</li>-->
+<!--              <li @click="customeServiceHandle" v-if="customerServiceEnabled">{{$t('navbar.button.work_order_support')}}</li>-->
+<!--              <li @click="applyProjectQuotaHandle" v-if="isProjectMode && projectQuotaEnabled">{{$t('navbar.button.work_order_apply_project_quota')}}</li>-->
+<!--              <li @click="applyDomainQuotaHandle" v-if="isDomainMode && domainQuotaEnabled">{{$t('navbar.button.work_order_apply_domain_quota')}}</li>-->
+<!--            </ul>-->
+<!--          </template>-->
         </div>
       </template>
     </a-popover>

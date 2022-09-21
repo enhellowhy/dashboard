@@ -7,7 +7,8 @@ export function solWebConsole (manager, host, onData, createDialog) {
     hostId = host.id
   }
   return {
-    label: i18n.t('compute.text_342'),
+    // label: i18n.t('compute.text_342'),
+    label: i18n.t('compute.text_1274'),
     permission: 'hosts_get_ipmi',
     action: () => {
       const success = () => {

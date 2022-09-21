@@ -91,6 +91,33 @@
                 <template v-if="price">
                   <m-animated-number :value="price" :formatValue="priceFormat" />
                   <discount-price class="ml-2 mini-text" :discount="discount" :origin="originPrice" />
+                  <m-animated-number :value="price" :formatValue="formatToPrice" />
+                  <discount-price class="ml-2 mini-text" :discount="priceData.discount" :origin="originPrice" />
+                  <a-tooltip class="tooltip d-flex ml-2 mb-2 align-items-end">
+                    <div v-if="sysDiskPrice" slot="title" class="d-flex flex-column justify-content-center">
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-fill flex-grow-1" style="width: 50px">{{$t('compute.instance.price')}}</div>
+                        <div class="ml-2 flex-fill flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(instancePrice) }}</div>
+                        <div class="ml-1 flex-fill flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.sys_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(sysDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div v-if="dataDiskPrice" class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.data_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(dataDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                    </div>
+                    <div v-else slot="title" class="d-flex flex-column justify-content-center">
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.tooltip')}}</div>
+                      </div>
+                    </div>
+                    <icon type="question" />
+                  </a-tooltip>
                 </template>
                 <template v-else>---</template>
               </div>
@@ -116,13 +143,14 @@ import MemRadio from '@Compute/sections/MemRadio'
 import DataDisk from '@Compute/sections/DataDisk'
 import SystemDisk from '@Compute/views/vminstance/create/components/SystemDisk'
 import sku from '@Compute/sections/SKU'
-import { SERVER_TYPE, EIP_TYPES_MAP } from '@Compute/constants'
+// import { SERVER_TYPE, EIP_TYPES_MAP, BILL_TYPES_MAP } from '@Compute/constants'
+import { SERVER_TYPE } from '@Compute/constants'
 import SystemIcon from '@/sections/SystemIcon'
 import { Manager } from '@/utils/manager'
 import WindowsMixin from '@/mixins/windows'
 import WorkflowMixin from '@/mixins/workflow'
-import { HYPERVISORS_MAP } from '@/constants'
-import { PriceFetcher } from '@/utils/common/price'
+import { HYPERVISORS_MAP, PROVIDER_MAP } from '@/constants'
+// import { PriceFetcher } from '@/utils/common/price'
 import {
   getNameDescriptionTableColumn,
   getIpsTableColumn,
@@ -358,11 +386,12 @@ export default {
       domain: itemData.domain_id,
       cloudaccountId: itemData.account_id,
       sysdisk: {},
+      pricesList: [],
       origin_price: null,
-      price: null,
+      // price: null,
       priceFormat: null,
-      currency: '',
-      priceTips: '--',
+      // currency: '',
+      // priceTips: '--',
       discount: 0,
       dataDiskType: '',
       dataDiskInterval: null,
@@ -547,7 +576,7 @@ export default {
     },
     hasMeterService () { // 是否有计费的服务
       const { services } = this.$store.getters.userInfo
-      const meterService = services.find(val => val.type === 'meter')
+      const meterService = services.find(val => val.type === 'meter-li')
       if (meterService && meterService.status === true) {
         return true
       }
@@ -556,6 +585,43 @@ export default {
     // 是否为包年包月
     isPackage () {
       return this.selectedItem.billing_type === 'prepaid'
+    },
+    price () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { month_price: month, sum_price: sum } = this.pricesList[0]
+        let _price = parseFloat(sum)
+
+        if (this.isPackage) {
+          _price = parseFloat(month) * (this.durationNum || 1)
+        }
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    currency () {
+      const currencys = {
+        USD: '$',
+        CNY: '¥',
+      }
+      if (this.pricesList && this.pricesList.length > 0) {
+        return currencys[this.pricesList[0].currency]
+      }
+      return '¥'
+    },
+    priceTips () {
+      if (this.price) {
+        if (this.isPackage) {
+          const _day = (this.price / 30 / (this.durationNum || 1)).toFixed(2)
+          const _hour = (parseFloat(_day) / 24).toFixed(2)
+          return this.$t('compute.text_1137', [this.currency, _day, this.currency, _hour])
+        } else {
+          const _day = (this.price * 24).toFixed(2)
+          const _month = (parseFloat(_day) * 30).toFixed(2)
+          return this.$t('compute.text_1138', [this.currency, _day, this.currency, _month])
+        }
+      }
+      return '--'
     },
     durationNum () {
       if (this.isPackage) {
@@ -571,7 +637,8 @@ export default {
       return 0
     },
     disk () {
-      const diskValueArr = [this.form.fd.systemDiskSize]
+      // const diskValueArr = [this.form.fd.systemDiskSize]
+      const diskValueArr = []
       R.forEachObjIndexed(value => {
         diskValueArr.push(value)
       }, this.form.fd.dataDiskSizes)
@@ -595,11 +662,55 @@ export default {
     isPublic () {
       return this.params.data[0].cloud_env === SERVER_TYPE.public
     },
-    originPrice () {
-      if (this.origin_price) {
-        this.$emit('getOriginPrice', this.origin_price)
+    priceData () {
+      const data = _.get(this.pricesList, '[0]', { discount: 1 })
+      return data
+    },
+    instancePrice () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { instance_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
       }
-      return this.origin_price
+      return null
+    },
+    sysDiskPrice () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { sys_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    dataDiskPrice () {
+      const count = this.count
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { data_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return 0
+    },
+    // originPrice () {
+    //   if (this.origin_price) {
+    //     this.$emit('getOriginPrice', this.origin_price)
+    //   }
+    //   return this.origin_price
+    // },
+    originPrice () {
+      if (this.pricesList && this.pricesList.length > 0) {
+        const { month_gross_price: month, hour_gross_price: sum } = this.pricesList[0]
+        let _price = parseFloat(sum)
+        if (this.isPackage) {
+          _price = parseFloat(month) * (this.durationNum || 1)
+        }
+
+        return _price
+      }
+
+      return null
     },
     requireSysDiskType () {
       if (this.sysdisk && this.sysdisk.type) {
@@ -676,12 +787,14 @@ export default {
     this.serversManager = new Manager('servers', 'v2')
     this.zonesM2 = new Manager('zones', 'v2')
     this.serverskusM = new Manager('serverskus')
+    this.storagesM = new Manager('storages')
     this.loadData(this.params.data)
     this.fetchInstanceSpecs()
     this.getPriceList = _.debounce(this._getPriceList2, 500)
     this.baywatch([
       'form.fd.sku.id',
       'form.fd.dataDiskSizes',
+      'form.fd.dataDiskTypes',
     ], (val) => {
       if (val) {
         this.getPriceList()
@@ -728,6 +841,9 @@ export default {
         let diskKey = this.sysdisk.type
         const { disk_type, medium_type } = this.selectedItem.disks_info[0] || {}
         if ((this.selectedItem.hypervisor === HYPERVISORS_MAP.kvm.hypervisor || this.selectedItem.hypervisor === HYPERVISORS_MAP.cloudpods.hypervisor) && diskKey === 'local' && disk_type === 'sys' && medium_type && this.isSomeLocal()) {
+          diskKey = `${diskKey}-${medium_type}`
+        }
+        if ((this.selectedItem.hypervisor === HYPERVISORS_MAP.kvm.hypervisor || this.selectedItem.hypervisor === HYPERVISORS_MAP.cloudpods.hypervisor) && diskKey === 'rbd' && disk_type === 'sys' && medium_type) {
           diskKey = `${diskKey}-${medium_type}`
         }
         this.form.fd.defaultType = {
@@ -879,6 +995,21 @@ export default {
         }
       }
     },
+    fetchLocalStorage () {
+      const params = {
+        enabled: true,
+        host_id: this.selectedItem.host_id,
+        local: true,
+        scope: 'system',
+      }
+      this.storagesM.list({ params })
+        .then(({ data: { data = [] } }) => {
+          if (data.length) {
+            const firstStorage = data[0]
+            this.dataDiskType = 'local-' + firstStorage.medium_type
+          }
+        })
+    },
     fetchInstanceSpecs () {
       const params = {
         usable: true,
@@ -910,6 +1041,8 @@ export default {
         })
     },
     onValuesChange (props, values) {
+      // console.log(this.selectedItem)
+      // console.log('values')
       Object.keys(values).forEach((key) => {
         let value = values[key]
         if (key === 'dataDiskSizes' && R.is(Object, values[key]) && R.is(Object, this.form.fd.dataDiskSizes)) {
@@ -918,6 +1051,9 @@ export default {
         this.$set(this.form.fd, key, value)
         if (~key.indexOf('dataDiskTypes') && R.is(Object, values)) {
           this.dataDiskType = values[key].key
+          if (this.dataDiskType === 'local') {
+            this.fetchLocalStorage()
+          }
         }
         if (~key.indexOf('dataDiskSizes[')) {
           const uid = key.replace(/dataDiskSizes\[(.+)\]/, '$1')
@@ -947,10 +1083,80 @@ export default {
           diskObj.size = values.dataDiskSizes[key] * 1024
         }
         if (values.dataDiskTypes) {
+          // console.log(values)
+          // {
+          //   "vcpu": 2,
+          //   "vmem": 2048,
+          //   "sku": {
+          //     "attached_disk_count": 0,
+          //     "attached_disk_size_gb": 0,
+          //     "can_delete": false,
+          //     "can_update": true,
+          //     "cloudregion": "北京",
+          //     "cloudregion_id": "default",
+          //     "cpu_core_count": 2,
+          //     "created_at": "2021-12-23T08:57:20.000000Z",
+          //     "data_disk_max_count": 0,
+          //     "deleted": false,
+          //     "enabled": true,
+          //     "gpu_attachable": true,
+          //     "gpu_count": 0,
+          //     "gpu_max_count": 0,
+          //     "id": "acb92f04-6908-4f82-8d6f-b7cc37ceaa70",
+          //     "imported_at": "2021-12-23T08:57:20.000000Z",
+          //     "instance_type_category": "general_purpose",
+          //     "instance_type_family": "g1",
+          //     "is_emulated": false,
+          //     "local_category": "general_purpose",
+          //     "memory_size_mb": 2048,
+          //     "name": "ecs.g1.c2m2",
+          //     "nic_max_count": 1,
+          //     "os_name": "Any",
+          //     "postpaid_status": "available",
+          //     "prepaid_status": "available",
+          //     "provider": "OneCloud",
+          //     "region": "北京",
+          //     "region_id": "default",
+          //     "source": "local",
+          //     "status": "ready",
+          //     "sys_disk_max_size_gb": 0,
+          //     "sys_disk_min_size_gb": 0,
+          //     "sys_disk_resizable": true,
+          //     "total_guest_count": 9,
+          //     "update_version": 1,
+          //     "updated_at": "2021-12-23T08:57:20.000000Z",
+          //     "instance_type_category_i18n": "通用型",
+          //     "memory_size_mb_compute": 2
+          //   },
+          //   "autoStart": true,
+          //   "systemDiskType": {
+          //     "key": "local",
+          //     "label": "local"
+          //   },
+          //   "systemDiskSize": 30,
+          //   "dataDiskTypes": {
+          //     "04909077-F744-4E2F-860B-721109E19E89": {
+          //       "key": "local",
+          //       "label": "local"
+          //     }
+          //   },
+          //   "dataDiskSizes": {
+          //     "04909077-F744-4E2F-860B-721109E19E89": 30
+          //   }
+          // }
           if (values.dataDiskTypes[key]) {
             // 针对kvm-local盘特殊处理
             let diskKey = values.dataDiskTypes[key].key
-            if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+            if (diskKey.indexOf('rbd') !== -1 && this.needLocalMedium && this.form.fi.capability.storage_sched && !R.isEmpty(this.form.fi.capability.storage_sched)) {
+              diskObj.schedtags = [
+                { id: this.form.fi.capability.storage_sched[diskKey] },
+              ]
+              diskObj.schedtags[0].strategy = 'require'
+            }
+            // if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+            //   diskKey = diskKey.split('-')[0]
+            // }
+            if ((diskKey.indexOf('rbd') !== -1 || diskKey.indexOf('local') !== -1) && this.needLocalMedium) {
               diskKey = diskKey.split('-')[0]
             }
             diskObj.backend = diskKey
@@ -958,7 +1164,16 @@ export default {
             if (_.get(dataDisks, '[0].diskType.key')) {
               // 针对kvm-local盘特殊处理
               let diskKey = _.get(dataDisks, '[0].diskType.key') // 默认添加的盘和第一块保持一致
-              if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+              if (diskKey.indexOf('rbd') !== -1 && this.needLocalMedium && this.form.fi.capability.storage_sched && !R.isEmpty(this.form.fi.capability.storage_sched)) {
+                diskObj.schedtags = [
+                  { id: this.form.fi.capability.storage_sched[diskKey] },
+                ]
+                diskObj.schedtags[0].strategy = 'require'
+              }
+              // if (diskKey.indexOf('local') !== -1 && this.needLocalMedium) {
+              //   diskKey = diskKey.split('-')[0]
+              // }
+              if ((diskKey.indexOf('rbd') !== -1 || diskKey.indexOf('local') !== -1) && this.needLocalMedium) {
                 diskKey = diskKey.split('-')[0]
               }
               diskObj.backend = diskKey
@@ -974,14 +1189,14 @@ export default {
         if (values.dataDiskSnapshots && values.dataDiskSnapshots[key]) {
           diskObj.snapshot_id = values.dataDiskSnapshots[key]
         }
-        if (values.dataDiskSchedtags && values.dataDiskSchedtags[key]) {
-          diskObj.schedtags = [
-            { id: values.dataDiskSchedtags[key] },
-          ]
-          if (values.dataDiskPolicys && values.dataDiskPolicys[key]) {
-            diskObj.schedtags[0].strategy = values.dataDiskPolicys[key]
-          }
-        }
+        // if (values.dataDiskSchedtags && values.dataDiskSchedtags[key]) {
+        //   diskObj.schedtags = [
+        //     { id: values.dataDiskSchedtags[key] },
+        //   ]
+        //   if (values.dataDiskPolicys && values.dataDiskPolicys[key]) {
+        //     diskObj.schedtags[0].strategy = values.dataDiskPolicys[key]
+        //   }
+        // }
         if (values.dataDiskStorages && values.dataDiskStorages[key]) {
           diskObj.storage_id = values.dataDiskStorages[key]
         }
@@ -1007,6 +1222,16 @@ export default {
         this.$watch(prop, watcher)
       }
       props.forEach(iterator, this)
+    },
+    formatToPrice (val) {
+      let ret = `${this.currency} ${val.toFixed(3)}`
+      // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      ret += !this.isPackage ? this.$t('compute.hour.price.unit') : ''
+      return ret
+    },
+    formatToPriceWithoutHour (val) {
+      // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      return `${this.currency} ${val.toFixed(4)}`
     },
     // // 获取总价格
     // async _getPriceList () {
@@ -1086,53 +1311,95 @@ export default {
       if (isPublic && (R.isNil(f.sku.region_ext_id) || R.isEmpty(f.sku.region_ext_id))) return
       if (R.isNil(f.systemDiskSize)) return
 
-      const pf = new PriceFetcher()
-      pf.initialForm(this.$store.getters.scope, f.sku, f.duration || '1M', this.selectedItem?.billing_type, this.isPublic, this.cloudaccountId)
-      // add price items
-      if (!isPublic) {
-        // server instance
-        pf.addCpu(f.vcpu)
-        pf.addMem(f.vmem / 1024)
-
-        // gpu
-        if (f.gpuEnable && f.gpu && f.gpu.indexOf('=') >= 0) {
-          const tmps = f.gpu.split('=')[1].split(':')
-          if (tmps.length >= 2) {
-            pf.addGpu(`${tmps[0]}.${tmps[1]}`, f.gpuCount || 0)
+      // const pf = new PriceFetcher()
+      // pf.initialForm(this.$store.getters.scope, f.sku, f.duration || '1M', this.selectedItem?.billing_type, this.isPublic, this.cloudaccountId)
+      // // add price items
+      // if (!isPublic) {
+      //   // server instance
+      //   pf.addCpu(f.vcpu)
+      //   pf.addMem(f.vmem / 1024)
+      //
+      //   // gpu
+      //   if (f.gpuEnable && f.gpu && f.gpu.indexOf('=') >= 0) {
+      //     const tmps = f.gpu.split('=')[1].split(':')
+      //     if (tmps.length >= 2) {
+      //       pf.addGpu(`${tmps[0]}.${tmps[1]}`, f.gpuCount || 0)
+      //     }
+      //   }
+      // } else {
+      //   // server instance
+      //   pf.addServer(f.sku.name, 1)
+      //   // others
+      // }
+      let skuProvider = this.form.fd.sku.provider || PROVIDER_MAP.OneCloud.key
+      const brand = PROVIDER_MAP[skuProvider].brand
+      const params = {
+        scope: this.$store.getters.scope,
+        quantity: this.count,
+        res_type: 'vm',
+        brand,
+      }
+      if (this.isPublic) {
+        if (this.form.fd.sku && this.form.fd.sku.cloud_env) {
+          params.brand = this.form.fd.sku.cloud_env
+          skuProvider = this.form.fd.sku.cloud_env
+        }
+      }
+      // const { systemDiskSize = 0, systemDiskType = {}, sysdisks = [] } = this.form.fd
+      const { systemDiskSize = 0, sysdisks = [] } = this.form.fd
+      console.log(this.dataDiskType)
+      if (this.params.data[0].cloud_env !== SERVER_TYPE.public) {
+        const { sku } = this.form.fd
+        if (this.count > 1) {
+          params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=0,model=::;disk=0,model=::`
+        } else {
+          let diskSize = this.disk || 0
+          const disk_storage_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[0]
+          const disk_medium_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[1]
+          if (!this.disk && sysdisks) {
+            // diskSize = sysdisks.reduce((sum, disk) => { return sum + disk.value }, 0) / this.count
+            diskSize = 0
           }
+          const { storage_type, medium_type } = this.selectedItem.disks_info[0] || {} // disk_type: "sys"
+          // console.log(this.selectedItem)
+          // params.spec = `cpu=${this.form.fd.vcpu}core;mem=${sizestrWithUnit(this.form.fd.vmem, 'M', 1024)};disk=${diskSize}GB`
+          // params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskType.key.split('-')[1]}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${datadiskmedium}::${dataDiskType}`
+          params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=${systemDiskSize},model=${medium_type}::${storage_type};disk=${diskSize},model=${disk_medium_type}::${disk_storage_type}`
         }
       } else {
         // server instance
-        pf.addServer(f.sku.name, 1)
+        // pf.addServer(f.sku.name, 1)
         // others
       }
 
       // disks
-      const { systemDiskSize, systemDiskType } = f
-      const { systemDiskMedium, dataDiskMedium } = this.form.fi
-      let systemDisk = systemDiskType.key
-      if (!isPublic) systemDisk = `${systemDiskMedium}::${systemDiskType.key}`
-      pf.addDisk(systemDisk, systemDiskSize)
-      if (this.dataDiskType) {
-        const datadisks = Object.values(this.form.fd.dataDiskSizes || {})
-        let dataDisk = this.dataDiskType
-        if (!isPublic) dataDisk = `${dataDiskMedium}::${this.dataDiskType}`
-        pf.addDisks(dataDisk, datadisks)
-      }
+      // const { systemDiskSize, systemDiskType } = f
+      // const { systemDiskMedium, dataDiskMedium } = this.form.fi
+      // let systemDisk = systemDiskType.key
+      // if (!isPublic) systemDisk = `${systemDiskMedium}::${systemDiskType.key}`
+      // pf.addDisk(systemDisk, systemDiskSize)
+      // if (this.dataDiskType) {
+      //   const datadisks = Object.values(this.form.fd.dataDiskSizes || {})
+      //   let dataDisk = this.dataDiskType
+      //   if (!isPublic) dataDisk = `${dataDiskMedium}::${this.dataDiskType}`
+      //   pf.addDisks(dataDisk, datadisks)
+      // }
 
       // eip
-      if (f.eip_bw && f.eip_type === EIP_TYPES_MAP.new.key) {
-        pf.addEipBandwidth(f.eip_bgp_type || '', f.eip_bw)
-      }
+      // if (f.eip_bw && f.eip_type === EIP_TYPES_MAP.new.key) {
+      //   pf.addEipBandwidth(f.eip_bgp_type || '', f.eip_bw)
+      // }
+      // const price = await pf.getPriceObj()
+      // price.setOptions({ count: this.count || 0 })
+      // this.currency = price.currency
+      // this.price = price.price
+      // this.priceFormat = price.priceFormat
+      // this.origin_price = price.originPrice
+      // this.priceTips = price.priceTips
+      // this.discount = price.discount
 
-      const price = await pf.getPriceObj()
-      price.setOptions({ count: this.count || 0 })
-      this.currency = price.currency
-      this.price = price.price
-      this.priceFormat = price.priceFormat
-      this.origin_price = price.originPrice
-      this.priceTips = price.priceTips
-      this.discount = price.discount
+      const { data: { data = [] } } = await new this.$Manager('price_infos', 'v1').get({ id: '', params })
+      this.pricesList = data
     },
     isSomeLocal () {
       const { capability = {} } = this.form.fi
@@ -1151,11 +1418,24 @@ export default {
 }
 .prices {
   .hour {
+    color: #f6a100;
     font-size: 24px;
   }
   .tips {
-    color: #999;
-    font-size: 12px;
+    //color: #999;
+    color: #000;
+    font-size: 14px;
+  }
+}
+.tooltip {
+  //color: #f6a100;
+  color: #999;
+  font-size: 12px;
+  .tooltip-title {
+    color: #f6a100;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
   }
 }
 </style>

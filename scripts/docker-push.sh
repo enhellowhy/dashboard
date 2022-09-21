@@ -34,6 +34,14 @@ push_image() {
     docker push "$tag"
 }
 
+docker_buildx_amd64() {
+    local tag=$1
+    local file=$2
+    local path=$3
+    docker buildx build --platform="linux/amd64" -t "$tag" -f "$file" "$path" --push
+    docker pull $tag
+}
+
 docker_buildx() {
     local tag=$1
     local file=$2
@@ -45,13 +53,25 @@ docker_buildx() {
 build_src
 img_name="$REGISTRY/web:$TAG"
 
+#case $ARCH in
+#    amd64 | "" )
+#        build_image "$img_name" "$DOCKER_DIR/Dockerfile" "$SRC_DIR"
+#        push_image "$img_name"
+#        ;;
+#    all)
+#        docker_buildx "$img_name" "$DOCKER_DIR/Dockerfile" "$SRC_DIR"
+#        ;;
+#esac
+#
 case $ARCH in
-    amd64 | "" )
-        build_image "$img_name" "$DOCKER_DIR/Dockerfile" "$SRC_DIR"
-        push_image "$img_name"
+    amd64)
+        docker_buildx_amd64 "$img_name" "$DOCKER_DIR/Dockerfile" "$SRC_DIR"
         ;;
     all)
         docker_buildx "$img_name" "$DOCKER_DIR/Dockerfile" "$SRC_DIR"
         ;;
+    "" )
+        build_image "$img_name" "$DOCKER_DIR/Dockerfile" "$SRC_DIR"
+        push_image "$img_name"
+        ;;
 esac
-

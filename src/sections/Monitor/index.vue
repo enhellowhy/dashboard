@@ -115,9 +115,13 @@ export default {
             points.map((point, idx) => {
               if (column === 'time') {
                 const momentObj = this.$moment(point[i])
-                const time = momentObj._isAMomentObject ? momentObj.format(this.timeFormatStr) : point[0]
-                row.xData.push(time)
-                row.hideLegend = true
+                // const time = momentObj._isAMomentObject ? momentObj.format(this.timeFormatStr) : point[0]
+                // row.xData.push(time)
+                // row.hideLegend = true
+                const time = momentObj._isAMomentObject ? momentObj.format(this.timeFormatStr) : point[-1]
+                rows.forEach(row => {
+                  row.xData.push(time)
+                })
               } else {
                 const format = val.constants.format || '0.00' // 默认是保留小数点后两位
                 if (groupByKey.length !== 0) {
@@ -132,7 +136,10 @@ export default {
                 row.yData.push(numerify(point[i], format))
               }
             })
-            rows.push(row)
+            // rows.push(row)
+            if (column !== 'time') {
+              rows.push(row)
+            }
           })
         })
 

@@ -27,8 +27,33 @@
             <div class="ml-2 prices">
               <div class="hour d-flex">
                 <template v-if="price">
-                  <m-animated-number :value="price" :formatValue="priceFormat" />
+<!--                  <m-animated-number :value="price" :formatValue="priceFormat" />-->
+                  <m-animated-number :value="price" :formatValue="formatToPrice" />
                   <discount-price class="ml-2 mini-text" :discount="discount" :origin="originPrice" />
+                  <a-tooltip class="tooltip d-flex ml-2 mb-2 align-items-end">
+                    <div slot="title" class="d-flex flex-column justify-content-center">
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-fill flex-grow-1" style="width: 50px">{{$t('compute.instance.price')}}</div>
+                        <div class="ml-2 flex-fill flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(instancePrice) }}</div>
+                        <div class="ml-1 flex-fill flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.sys_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(sysDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                      <div v-if="dataDiskPrice" class="d-flex align-items-center flex-grow-1 content">
+                        <div class="m-1 flex-grow-1" style="width: 50px">{{$t('compute.data_disk.price')}}</div>
+                        <div class="ml-2 flex-grow-1" style="color: #f6a100">{{ formatToPriceWithoutHour(dataDiskPrice) }}</div>
+                        <div class="ml-1 flex-grow-1">{{$t('compute.hour.price.unit')}}</div>
+                      </div>
+                    </div>
+<!--                    <template v-slot:title>-->
+<!--                      <div v-html="content" class="help-tooltip-content-wrap" />-->
+<!--                    </template>-->
+                    <icon type="question" />
+                  </a-tooltip>
+<!--                  <help-tooltip class="ml-1" name="networkPolicy" />-->
                 </template>
                 <template v-else>---</template>
               </div>
@@ -57,9 +82,10 @@
 <script>
 import * as R from 'ramda'
 import _ from 'lodash'
-import { SERVER_TYPE, BILL_TYPES_MAP, EIP_TYPES_MAP } from '@Compute/constants'
+import { BILL_TYPES_MAP, EIP_TYPES_MAP, SERVER_TYPE } from '@Compute/constants'
 import { sizestrWithUnit } from '@/utils/utils'
 import { PriceFetcher } from '@/utils/common/price'
+import { PROVIDER_MAP } from '@/constants'
 import SideErrors from '@/sections/SideErrors'
 import DiscountPrice from '@/sections/DiscountPrice'
 
@@ -110,12 +136,13 @@ export default {
   data () {
     this.getPriceList = _.debounce(this._getPriceList2, 500)
     return {
+      pricesList: [],
       origin_price: null,
       discount: 0,
-      price: null,
+      // price: null,
       priceFormat: null,
-      currency: '',
-      priceTips: '--',
+      // currency: '',
+      // priceTips: '--',
       disabled: false,
     }
   },
@@ -219,6 +246,69 @@ export default {
       }
       return 0
     },
+    price () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { month_price: month, sum_price: sum } = this.pricesList[0]
+        let _price = parseFloat(sum)
+        if (this.isPackage && this.durationNum) {
+          _price = parseFloat(month) * this.durationNum
+        }
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    instancePrice () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { instance_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    sysDiskPrice () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { sys_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return null
+    },
+    dataDiskPrice () {
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { data_disk_hour_price: price } = this.pricesList[0]
+        const _price = parseFloat(price)
+        return _price * parseFloat(count)
+      }
+      return 0
+    },
+    currency () {
+      const currencys = {
+        USD: '$',
+        CNY: '¥',
+      }
+      if (this.pricesList && this.pricesList.length > 0) {
+        return _.get(currencys, `[${this.pricesList[0].currency}]`) || currencys.CNY
+      }
+      return '¥'
+    },
+    priceTips () {
+      if (this.price) {
+        if (this.isPackage && this.durationNum) {
+          const _day = (this.price / 30 / this.durationNum).toFixed(2)
+          const _hour = (parseFloat(_day) / 24).toFixed(2)
+          return this.$t('compute.text_1137', [this.currency, _day, this.currency, _hour])
+        } else {
+          const _day = (this.price * 24).toFixed(2)
+          const _month = (parseFloat(_day) * 30).toFixed(2)
+          return this.$t('compute.text_1138', [this.currency, _day, this.currency, _month])
+        }
+      }
+      return '--'
+    },
     confirmText () {
       if (this.isServertemplate) return this.$t('compute.text_1139')
       return this.isOpenWorkflow ? this.$t('compute.text_288') : this.$t('compute.text_289')
@@ -247,18 +337,31 @@ export default {
       if (this.dataDiskObj && this.dataDiskObj.label) return this.dataDiskObj.label
       return ''
     },
+    // originPrice () {
+    //   if (this.origin_price) {
+    //     this.$emit('getOriginPrice', this.origin_price)
+    //   }
+    //   return this.origin_price
+    // },
     originPrice () {
-      if (this.origin_price) {
-        this.$emit('getOriginPrice', this.origin_price)
+      const { count } = this.fd
+      if (count && this.pricesList && this.pricesList.length > 0) {
+        const { month_gross_price: month, hour_gross_price: sum } = this.pricesList[0]
+        let _price = parseFloat(sum)
+        if (this.isPackage && this.durationNum) {
+          _price = parseFloat(month) * this.durationNum
+        }
+        return _price * parseFloat(count)
       }
-      return this.origin_price
+      return null
     },
   },
   watch: {
     priceTips: {
       handler (val) {
-        let ret = `${this.currency} ${this.price && this.price.toFixed(2)}`
-        ret += !this.isPackage ? this.$t('compute.text_296') : ''
+        let ret = `${this.currency} ${this.price && this.price.toFixed(3)}`
+        // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+        ret += !this.isPackage ? this.$t('compute.hour.price.unit') : ''
         this.$bus.$emit('VMGetPrice', `${ret} ${val}`)
       },
       immediate: true,
@@ -311,6 +414,15 @@ export default {
   methods: {
     changeErrors (errors) {
       this.$emit('update:errors', {})
+    },
+    formatToPrice (val) {
+      let ret = `${this.currency} ${val.toFixed(3)}`
+      ret += !this.isPackage ? this.$t('compute.hour.price.unit') : ''
+      return ret
+    },
+    formatToPriceWithoutHour (val) {
+      // ret += !this.isPackage ? this.$t('compute.text_296') : ''
+      return `${this.currency} ${val.toFixed(4)}`
     },
     baywatch (props, watcher) {
       const iterator = function (prop) {
@@ -409,6 +521,7 @@ export default {
     async _getPriceList2 () {
       const f = this.fd
       if (!this.hasMeterService) return // 如果没有 meter 服务则取消调用
+      // if (!this.$appConfig.isPrivate) return // 如果是开源版本则取消调用meter服务
       if (R.isEmpty(f.sku) || R.isNil(f.sku)) return
       if (this.fi.createType === SERVER_TYPE.public && (R.isNil(f.sku.region_ext_id) || R.isEmpty(f.sku.region_ext_id))) return
       if (!R.is(Number, f.count)) return
@@ -417,16 +530,49 @@ export default {
       const pf = new PriceFetcher()
       pf.initialForm(this.$store.getters.scope, f.sku, f.duration, f.billType, this.isPublic, this.cloudaccountId)
       // add price items
+
+      let skuProvider = this.fd.sku.provider || PROVIDER_MAP.OneCloud.key
+      const brand = PROVIDER_MAP[skuProvider].brand
+      const params = {
+        scope: this.$store.getters.scope,
+        quantity: this.fd.count,
+        brand,
+        res_type: 'vm',
+      }
+      // if (this.isIDC && this.fd.eip_type === EIP_TYPES_MAP.new.key && this.fd.eip_bgp_type) {
+      //   params.eip_bgp_type = this.fd.eip_bgp_type
+      // }
+      if (this.isPublic) {
+        if (this.fd.sku && this.fd.sku.cloud_env) {
+          params.brand = this.fd.sku.cloud_env
+          skuProvider = this.fd.sku.cloud_env
+        }
+      }
+      const { systemDiskSize, systemDiskType } = this.fd
+      const { systemDiskMedium, dataDiskMedium } = this.form.fi
+      if (R.isNil(systemDiskSize)) return
       if (this.fi.createType !== SERVER_TYPE.public) {
         // server instance
-        pf.addCpu(f.vcpu)
-        pf.addMem(f.vmem / 1024)
+        // pf.addCpu(f.vcpu)
+        // pf.addMem(f.vmem / 1024)
 
         // gpu
-        if (f.gpuEnable && f.gpu && f.gpu.indexOf('=') >= 0) {
-          const tmps = f.gpu.split('=')[1].split(':')
-          if (tmps.length >= 2) {
-            pf.addGpu(`${tmps[0]}.${tmps[1]}`, f.gpuCount || 0)
+        // if (f.gpuEnable && f.gpu && f.gpu.indexOf('=') >= 0) {
+        //   const tmps = f.gpu.split('=')[1].split(':')
+        //   if (tmps.length >= 2) {
+        //     pf.addGpu(`${tmps[0]}.${tmps[1]}`, f.gpuCount || 0)
+        //   }
+        // }
+        // ?
+        const diskSize = this.dataDisk || 0
+        const dataDiskType = this.dataDiskType === '' ? '' : this.dataDiskType.split('-')[0]
+        // params.spec = `cpu=${this.fd.vcpu}core;mem=${sizestrWithUnit(this.fd.vmem, 'M', 1024)};disk=${systemDiskSize}GB,model=${systemDiskMedium}::${systemDiskType.key};disk=${diskSize}GB,model=${dataDiskMedium}::${this.dataDiskType}`
+        params.spec = `cpu=${this.fd.vcpu},model=${this.fd.sku.instance_type_family};mem=${this.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskMedium}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${dataDiskMedium}::${dataDiskType}`
+        if (this.fd.gpuEnable && this.fd.gpu) {
+          const vendor = this.fd.gpu.split('=')[1]
+          if (vendor) {
+            const tmps = vendor.split(':')
+            params.spec += `;gpu=${this.fd.gpuCount},model=${tmps[0]}.${tmps[1]}`
           }
         }
       } else {
@@ -436,8 +582,8 @@ export default {
       }
 
       // disks
-      const { systemDiskSize, systemDiskType } = f
-      const { systemDiskMedium, dataDiskMedium } = this.form.fi
+      // const { systemDiskSize, systemDiskType } = f
+      // const { systemDiskMedium, dataDiskMedium } = this.form.fi
       let systemDisk = systemDiskType.key
       if (this.fi.createType !== SERVER_TYPE.public) systemDisk = `${systemDiskMedium}::${systemDiskType.key}`
       pf.addDisk(systemDisk, systemDiskSize)
@@ -452,10 +598,16 @@ export default {
       if (f.eip_bw && f.eip_type === EIP_TYPES_MAP.new.key) {
         pf.addEipBandwidth(f.eip_bgp_type || '', f.eip_bw)
       }
+      try {
+        const { data: { data = [] } } = await new this.$Manager('price_infos', 'v1').get({ id: '', params })
+        this.pricesList = data
+      } catch (error) {
+        throw error
+      }
 
-      const price = await pf.getPriceObj()
-      this.priceObj = price
-      this.calcPrice()
+      // const price = await pf.getPriceObj()
+      // this.priceObj = price
+      // this.calcPrice()
     },
     calcPrice () {
       const price = this.priceObj
@@ -504,12 +656,25 @@ export default {
   }
   .prices {
     .hour {
-      color: @error-color;
+      //color: @error-color;
+      color: #f6a100;
       font-size: 24px;
     }
     .tips {
-      color: #999;
-      font-size: 12px;
+      //color: #999;
+      color: #000;
+      font-size: 14px;
+    }
+  }
+  .tooltip {
+    //color: #f6a100;
+    color: #999;
+    font-size: 12px;
+    .tooltip-title {
+      color: #f6a100;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
     }
   }
   .btns-wrapper {

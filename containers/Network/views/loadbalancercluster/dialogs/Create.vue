@@ -38,7 +38,7 @@ import Tag from '@/sections/Tag'
 import validateForm from '@/utils/validate'
 
 export default {
-  name: 'LoadbalancerclusterCreateDialog',
+  name: 'nLoadbalancerclusterCreateDialog',
   components: {
     CloudregionZone,
     Tag,

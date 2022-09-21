@@ -1063,7 +1063,7 @@
   "network.topology.res_type.esxi": "ESXI宿主机",
   "network.topology.res_type.instancegroups": "实例组",
   "network.topology.res_type.networkinterfaces": "弹性网卡",
-  "network.topology.start": "起", 
+  "network.topology.start": "起",
   "network.topology.end": "止",
   "network.topology": "拓扑",
   "network.topology.view": "视图",
@@ -1071,5 +1071,8 @@
   "network.topology.view.pysical": "物理拓扑",
   "network.lb_monitor_bin": "负载均衡入流量",
   "network.lb_monitor_bout": "负载均衡出流量",
-  "network.eip_bind_server_tip": "经典网络类型虚拟机不支持绑定EIP"
+  "network.eip_bind_server_tip": "经典网络类型虚拟机不支持绑定EIP",
+  "network.loadbalancers.cluster.type.share": "共享集群",
+  "network.loadbalancers.cluster.type.specify": "专属集群",
+  "network.loadbalancers.network.type.specify": "专用网段"
 }

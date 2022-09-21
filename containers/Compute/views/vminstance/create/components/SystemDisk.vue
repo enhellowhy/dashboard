@@ -192,6 +192,9 @@ export default {
         if ((hyper === HYPERVISORS_MAP.kvm.key || hyper === HYPERVISORS_MAP.cloudpods.key) && type === 'local' && this.isSomeLocal(currentTypes)) {
           opt = hypervisorDisks[`${type}-${medium}`] // kvm 区分多种介质的硬盘
         }
+        if ((hyper === HYPERVISORS_MAP.kvm.key || hyper === HYPERVISORS_MAP.cloudpods.key) && type === 'rbd') {
+          continue // 屏蔽kvm rbd
+        }
         if (opt && !opt.sysUnusable) {
           // 新建ucloud虚拟机时，系统盘类型选择普通本地盘或SSD本地盘，其大小只能是系统镜像min_disk大小
           let max = opt.sysMax
@@ -220,6 +223,9 @@ export default {
       //     sysMin: Math.max(this.imageMinDisk, DISK_MIN_SIZE),
       //     sysMax: STORAGE_AUTO.sysMax,
       //   }
+      // }
+      // if (this.hypervisor === HYPERVISORS_MAP.kvm.key || this.hypervisor === HYPERVISORS_MAP.cloudpods.key) {
+      //   delete ret.rbd
       // }
       if (this.hypervisor === HYPERVISORS_MAP.google.key) {
         delete ret['local-ssd']

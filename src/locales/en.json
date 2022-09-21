@@ -550,7 +550,8 @@
     },
     "bucket": {
       "start_create": "Start to create",
-      "creating": "Creating",
+      "creating": "Bucket creating",
+      "building": "User building",
       "ready": "Available",
       "create_fail": "Create failed",
       "start_delete": "Start deleting",
@@ -559,7 +560,9 @@
       "delete_failed": "Deletion failed",
       "snying": "Syncing",
       "unknown": "Unknown status",
-      "sync_status": "Syncing status"
+      "sync_status": "Syncing status",
+      "true": "Enabled",
+      "false": "Disabled"
     },
     "hostImageCache": {
       "init": "Initializing",
@@ -614,6 +617,16 @@
       "verifying": "Verifying",
       "verified": "Verified"
     },
+    "workflowState": {
+      "PENDING": "In Process",
+      "COMPLETED": "Completed",
+      "CREATING": "Resource creating",
+      "CHANGING": "Resource changing",
+      "INIT": "Init",
+      "SUBMIT_FAIL": "Submit failed",
+      "SUBMITTING": "Submitting",
+      "EXTERNALLY_TERMINATED": "Canceled"
+    },
     "workflowBiz": {
       "success": "Success",
       "fail": "Failed",
@@ -653,6 +666,15 @@
       "create_failed": "Create failed",
       "delete_failed": "Deletion failed",
       "creating": "Creating"
+    },
+    "clusteractivitie": {
+      "init": "Initialize",
+      "wait": "Waiting",
+      "execution": "Executing",
+      "succeed": "Success",
+      "part_succeed": "Partial success",
+      "failed": "Failed",
+      "reject": "Reject"
     },
     "scalingactivitie": {
       "init": "Initialize",
@@ -2438,6 +2460,9 @@
   "auth.secret.reset.prefix1": "Please open the OneLogin Protect APP on your mobile phone to obtain the MFA security code. ",
   "auth.secret.validate": "The security code is wrong, please re-enter",
   "auth.secret.loading": "Authenticating",
+  "auth.noauth.title": "Sorry, you don't have permission to login，please contact the company administrator（Huanyu Wang）",
+  "auth.noauth.relogin.prefix": "If the permission has been enabled，please",
+  "auth.noauth.relogin": "Login Again",
   "auth.question.title": "Please set a security question to verify your identity when resetting the security code key",
   "auth.question.set.success": "Set the security question successfully",
   "auth.question.answer.placeholder": "Please enter the answer, within 15 characters",
@@ -2486,6 +2511,7 @@
     "guestnetwork": "Cloud Server Network",
     "host": "Host",
     "hostip": "Host Ip",
+    "hostcluster": "Cluster",
     "hostwire": "Host L2 network",
     "identity_provider": "Identity Provider",
     "image": "Images",
@@ -2919,6 +2945,9 @@
       "SAS": "High IO cloud hard drive",
       "SATA": "Common IO cloud hard Disk",
       "rbd": "Ceph RBD",
+      "rbd-hybrid": "High-effective cloud hard drive",
+      "rbd-ssd": "Common SSD",
+      "rbd-enhanced-ssd": "Enhanced SSD",
       "gpfs": "GPFS",
       "issci": "issci",
       "CLOUD_NORMAL": "common cloud Disk",
@@ -2987,6 +3016,7 @@
       "feature_select": "Feature config",
       "docs": "Documentation",
       "about": "About",
+      "work_order_mine": "My Tickets",
       "work_order_undone": "My Tickets {num}",
       "pending_work_order": "Pending {num}",
       "pending_work_order-tech": "Pending {num}",
@@ -4473,7 +4503,7 @@
   "common_397": "Configuration after adjustment",
   "common_399": "Processor",
   "common_400": "Cancel Ticket",
-  "common_401": "Process Result",
+  "common_401": "Process Result(Click to BPM)",
   "common_402": "Execution Result",
   "common_403": "Cancel",
   "common_404": "Apply for Quota Information",
@@ -5266,6 +5296,12 @@
   "common.mfa.qr_code_andriod_3": "offline package download address",
   "common.mfa.qr_code_chrome_1": "add Google browser extension, go to",
   "common.mfa.qr_code_chrome_2": "add",
+  "common.resources.creating": "Resources Creating",
+  "common.resources.changing": "Resources Changing",
+  "common.auditing": "Auditing",
+  "common.rebuild_resource": "Rebuild Resource",
+  "common.bucket.apply": "Bucket apply",
+  "common.loadbalancer.apply": "Loadbalancer apply",
   "common.choose.host": "Please choose a host",
   "common.choose.server": "Please select a virtual machine",
   "common.choose.server.label": "Specify a virtual machine",

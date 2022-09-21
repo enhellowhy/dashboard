@@ -13,7 +13,7 @@ import {
 } from '@/utils/common/detailColumn'
 
 export default {
-  name: 'LoadbalancerclusterDetail',
+  name: 'nLoadbalancerclusterDetail',
   props: {
     data: {
       type: Object,

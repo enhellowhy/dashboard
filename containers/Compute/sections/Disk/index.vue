@@ -37,14 +37,18 @@
         :decorators="{ filetype: decorator.filetype, mountPath: decorator.mountPath }" />
         <a-button class="mt-1" type="link" @click="() => showMountpoint = !showMountpoint">{{ showMountpoint ? $t('compute.text_135') : $t('compute.text_134') }}</a-button>
     </template>
-    <template v-if="has('schedtag') && !showStorage && !isStorageShow">
-      <schedtag-policy v-if="showSchedtag" :form="form" :decorators="{ schedtag: decorator.schedtag, policy: decorator.policy }" :schedtag-params="schedtagParams" :policyReactInSchedtag="false" />
-      <a-button v-if="!disabled" v-show="!simplify" class="mt-1" type="link" @click="() => showSchedtag = !showSchedtag">{{ showSchedtag ? $t('compute.text_135') : $t('compute.text_1315') }}</a-button>
-    </template>
-    <template v-if="has('storage') && !showSchedtag">
-      <storage style="min-width: 480px; max-width: 500px;" :diskKey="diskKey" :decorators="decorator" :storageParams="storageParams" v-if="showStorage" :form="form" :storageHostParams="storageHostParams" @storageHostChange="(val) => $emit('storageHostChange', val)" />
-      <a-button v-if="!disabled" class="mt-1" type="link" @click="storageShowClick">{{ showStorage ? $t('compute.text_135') : $t('compute.text_1350') }}</a-button>
-    </template>
+<!--    <template v-if="has('schedtag') && !showStorage && !isStorageShow">-->
+<!--      <schedtag-policy v-if="showSchedtag" :form="form" :decorators="{ schedtag: decorator.schedtag, policy: decorator.policy }" :schedtag-params="schedtagParams" :policyReactInSchedtag="false" />-->
+<!--      <a-button v-if="!disabled" v-show="!simplify" class="mt-1" type="link" @click="() => showSchedtag = !showSchedtag">{{ showSchedtag ? $t('compute.text_135') : $t('compute.text_1315') }}</a-button>-->
+<!--    </template>-->
+<!--    <template v-if="has('schedtag') && !showStorage">-->
+<!--      <schedtag-policy v-if="showSchedtag" :form="form" :decorators="{ schedtag: decorator.schedtag, policy: decorator.policy }" :schedtag-params="schedtagParams" />-->
+<!--      <a-button v-if="!disabled" v-show="!simplify" class="mt-1" type="link" @click="() => showSchedtag = !showSchedtag">{{ showSchedtag ? $t('compute.text_135') : $t('compute.text_1315') }}</a-button>-->
+<!--    </template>-->
+<!--    <template v-if="has('storage') && !showSchedtag">-->
+<!--      <storage style="min-width: 480px; max-width: 500px;" :diskKey="diskKey" :decorators="decorator" :storageParams="storageParams" v-if="showStorage" :form="form" :storageHostParams="storageHostParams" @storageHostChange="(val) => $emit('storageHostChange', val)" />-->
+<!--      <a-button v-if="!disabled" class="mt-1" type="link" @click="storageShowClick">{{ showStorage ? $t('compute.text_135') : $t('compute.text_1350') }}</a-button>-->
+<!--    </template>-->
     <!-- 磁盘容量预警信息提示 -->
     <a-tooltip v-if="storageStatusMap.tooltip">
       <template slot="title">
@@ -57,17 +61,17 @@
 
 <script>
 import * as R from 'ramda'
-import Storage from './components/Storage'
+// import Storage from './components/Storage'
 import { HYPERVISORS_MAP } from '@/constants'
-import SchedtagPolicy from '@/sections/SchedtagPolicy'
+// import SchedtagPolicy from '@/sections/SchedtagPolicy'
 import DiskMountpoint from '@/sections/DiskMountpoint'
 
 export default {
   name: 'Disk',
   components: {
-    SchedtagPolicy,
+    // SchedtagPolicy,
     DiskMountpoint,
-    Storage,
+    // Storage,
   },
   props: {
     diskKey: String,

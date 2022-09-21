@@ -16,7 +16,7 @@ import { getNameFilter, getDomainFilter } from '@/utils/common/tableFilter'
 import expectStatus from '@/constants/expectStatus'
 
 export default {
-  name: 'LoadbalancerlistenerList',
+  name: 'nLoadbalancerlistenerList',
   mixins: [WindowsMixin, ListMixin, ColumnsMixin, SingleActionsMixin],
   props: {
     id: String,
@@ -162,7 +162,7 @@ export default {
       return ret
     },
     handleOpenSidepage (row) {
-      this.sidePageTriggerHandle(this, 'LoadbalancerlistenerSidePage', {
+      this.sidePageTriggerHandle(this, 'nLoadbalancerlistenerSidePage', {
         id: row.id,
         resource: 'loadbalancerlisteners',
         getParams: this.getParam,

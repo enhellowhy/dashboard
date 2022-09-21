@@ -28,7 +28,12 @@ export default {
     return {
       list: this.$list.createList(this, {
         id: this.listId,
-        resource: 'historic-process-instances',
+        // resource: 'historic-process-instances',
+        steadyStatus: {
+          // status: Object.values(expectStatus.disk).flat(),
+          state: ['PENDING', 'COMPLETED', 'EXTERNALLY_TERMINATED', 'SUBMIT_FAIL'],
+        },
+        resource: 'workflow_process_instances',
         apiVersion: 'v1',
         getParams: this.getParam,
         sortKeys: ['create_time'],
@@ -81,13 +86,14 @@ export default {
     getParam () {
       return {
         ...this.getParams,
-        process_definition_key_exclude: 'customer-service',
+        // process_definition_key_exclude: 'customer-service',
       }
     },
     handleOpenSidepage (row) {
       this.sidePageTriggerHandle(this, 'AllProcessSidePage', {
         id: row.id,
-        resource: 'historic-process-instances',
+        // resource: 'historic-process-instances',
+        resource: 'workflow_process_instances',
         apiVersion: 'v1',
         getParams: this.getParam,
       }, {

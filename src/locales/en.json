@@ -1251,6 +1251,11 @@
       "compute_optimized": "compute optimized type",
       "memory_optimized": "Memory optimized"
     },
+    "li": {
+      "general_purpose": "General Purpose",
+      "compute_optimized": "compute optimized type",
+      "memory_optimized": "Memory optimized"
+    },
     "esxi": {
       "general_purpose": "General Purpose",
       "compute_optimized": "compute optimized type",

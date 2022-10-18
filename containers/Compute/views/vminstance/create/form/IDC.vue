@@ -28,7 +28,7 @@
           filterBrandResource="compute_engine" />
       </a-form-item>
       <a-form-item :label="$t('compute.text_228')" v-if="!isServertemplate">
-        <a-input v-decorator="decorators.name" />
+        <a-input v-decorator="decorators.name" :placeholder="$t('validator.resourceCreateName')" />
         <template v-slot:extra>
           <name-repeated res="servers" :name="form.fd.name" :default-text="$t('compute.text_893')" />
         </template>
@@ -86,9 +86,9 @@
           :cloudproviderParamsExtra="cloudproviderParamsExtra"
           @updateImageMsg="updateFi" />
       </a-form-item>
-      <a-form-item v-if="isKvm && isShowAgent" :label="$t('compute.agent.label')" :extra="$t('compute.agent.extra')">
-        <a-checkbox v-decorator="decorators.deploy_telegraf">{{ $t('compute.agent.install.plugin') }}</a-checkbox>
-      </a-form-item>
+<!--      <a-form-item v-if="isKvm && isShowAgent" :label="$t('compute.agent.label')" :extra="$t('compute.agent.extra')">-->
+<!--        <a-checkbox v-decorator="decorators.deploy_telegraf">{{ $t('compute.agent.install.plugin') }}</a-checkbox>-->
+<!--      </a-form-item>-->
       <a-form-item :label="$t('compute.text_49')" class="mb-0">
         <system-disk
           v-if="form.fd.hypervisor"

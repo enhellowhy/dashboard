@@ -16,7 +16,8 @@ export const toCN = v => {
 export const toVmName = obj => {
   const type = obj.res_type
   if (type === 'cpu') {
-    return i18n.t('bill.text_157')
+    // return i18n.t('bill.text_157')
+    return getFieldCn(obj.model)
   }
   if (type === 'mem') {
     return i18n.t('bill.text_158')

@@ -84,6 +84,7 @@ export default {
           ...values,
           memory_size_mb: values.memory_size_mb * 1024,
           brand: this.params.data[0].brand,
+          instance_type_category: this.params.data[0].instance_type_category,
         }
         this.loading = true
         await this.doCreate(values)

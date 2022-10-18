@@ -291,6 +291,22 @@ export default {
               hidden: () => this.$store.getters.isProjectMode,
             }),
             {
+              field: 'instance_type',
+              title: this.$t('compute.sku.category'),
+              formatter: ({ row }) => {
+                const instanceTypeFamily = row.instance_type.split('.')[1]
+                if (instanceTypeFamily === 'g1') {
+                  return row.instance_type + '(' + this.$t('skuCategoryOptions.li.general_purpose') + ')'
+                } else if (instanceTypeFamily === 'c1') {
+                  return row.instance_type + '(' + this.$t('skuCategoryOptions.li.compute_optimized') + ')'
+                } else if (instanceTypeFamily === 'r1') {
+                  return row.instance_type + '(' + this.$t('skuCategoryOptions.li.memory_optimized') + ')'
+                } else {
+                  return row.instance_type
+                }
+              },
+            },
+            {
               field: 'vcpu_count',
               title: 'CPU',
               formatter: ({ row }) => {

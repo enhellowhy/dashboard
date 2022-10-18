@@ -1266,6 +1266,11 @@
       "compute_optimized": "计算优化型",
       "memory_optimized": "内存优化型"
     },
+    "li": {
+      "general_purpose": "通用型",
+      "compute_optimized": "计算优化型",
+      "memory_optimized": "内存优化型"
+    },
     "esxi": {
       "general_purpose": "通用型",
       "compute_optimized": "计算优化型",

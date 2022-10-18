@@ -64,6 +64,7 @@ export const CHARGE_TYPES = [{
 export const DIC = {
   g1: i18n.t('bill.text_157'),
   c1: i18n.t('bill.text_555'),
+  r1: i18n.t('bill.text_562'),
   'rotate - local': i18n.t('bill.text_556'),
   'rotate::local': i18n.t('bill.text_556'),
   'ssd - local': i18n.t('bill.text_557'),

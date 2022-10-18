@@ -5,6 +5,11 @@
       <a-form
         v-bind="formItemLayout"
         :form="form.fc">
+        <a-form-item :label="$t('compute.sku.category')">
+          <a-radio-group class="d-flex flex-wrap" v-decorator="decorators.categories">
+            <a-radio-button class="d-flex align-items-center" v-for="item of categories" :key="item.key" :value="item.key">{{ item.label }}</a-radio-button>
+          </a-radio-group>
+        </a-form-item>
         <a-form-item :label="$t('compute.text_1051')" :extra="$t('compute.text_1055')">
           <a-input-number :min="1" :max="255" v-decorator="decorators.cpu_core_count" /> {{$t('compute.text_167')}}</a-form-item>
         <a-form-item :label="$t('compute.text_1052')" :extra="$t('compute.text_1056')">
@@ -25,6 +30,7 @@
 <script>
 import DialogMixin from '@/mixins/dialog'
 import WindowsMixin from '@/mixins/windows'
+import { SKU_CATEGORY_MAP } from '@Compute/constants'
 
 export default {
   name: 'CreateSkuDialog',
@@ -36,6 +42,12 @@ export default {
         fc: this.$form.createForm(this),
       },
       decorators: {
+        categories: [
+          'instance_type_category',
+          {
+            initialValue: 'general_purpose',
+          },
+        ],
         cpu_core_count: [
           'cpu_core_count',
           {
@@ -60,6 +72,19 @@ export default {
       },
     }
   },
+  computed: {
+    categories () {
+      const categoryOptions = {}
+      SKU_CATEGORY_MAP.li.forEach(item => {
+        categoryOptions[item] = {
+          label: this.getI18NValue(`skuCategoryOptions.li.${item}`, item),
+          key: item,
+          // disabled: !this.skuTypes.includes(item),
+        }
+      })
+      return categoryOptions || {}
+    },
+  },
   methods: {
     validateForm () {
       return new Promise((resolve, reject) => {
@@ -71,6 +96,12 @@ export default {
           }
         })
       })
+    },
+    getI18NValue (key, originVal) {
+      if (this.$te(key)) {
+        return this.$t(key)
+      }
+      return originVal
     },
     doCreate (data) {
       return this.params.onManager('create', {

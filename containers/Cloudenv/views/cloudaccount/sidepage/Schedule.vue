@@ -48,7 +48,7 @@ export default {
         { key: 'res-sync', label: this.$t('cloudenv.res_sync') },
       ]
       if (hasMeterService()) {
-        tabs.push({ key: 'bill-sync', label: this.$t('cloudenv.bill_sync') })
+        // tabs.push({ key: 'bill-sync', label: this.$t('cloudenv.bill_sync') })
       }
       return tabs
     },

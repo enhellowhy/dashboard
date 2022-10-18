@@ -181,7 +181,7 @@ export default {
     },
   },
   created () {
-    this.fetchDiscount()
+    // this.fetchDiscount()
   },
   methods: {
     async clearPermissions () {

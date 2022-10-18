@@ -567,7 +567,8 @@ export default {
         const diskSize = this.dataDisk || 0
         const dataDiskType = this.dataDiskType === '' ? '' : this.dataDiskType.split('-')[0]
         // params.spec = `cpu=${this.fd.vcpu}core;mem=${sizestrWithUnit(this.fd.vmem, 'M', 1024)};disk=${systemDiskSize}GB,model=${systemDiskMedium}::${systemDiskType.key};disk=${diskSize}GB,model=${dataDiskMedium}::${this.dataDiskType}`
-        params.spec = `cpu=${this.fd.vcpu},model=${this.fd.sku.instance_type_family};mem=${this.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskMedium}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${dataDiskMedium}::${dataDiskType}`
+        // params.spec = `cpu=${this.fd.vcpu},model=${this.fd.sku.instance_type_family};mem=${this.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskMedium}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${dataDiskMedium}::${dataDiskType}`
+        params.spec = `cpu=${this.fd.sku.cpu_core_count},model=${this.fd.sku.instance_type_family};mem=${this.fd.sku.memory_size_mb / 1024};disk=${systemDiskSize},model=${systemDiskMedium}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${dataDiskMedium}::${dataDiskType}`
         if (this.fd.gpuEnable && this.fd.gpu) {
           const vendor = this.fd.gpu.split('=')[1]
           if (vendor) {

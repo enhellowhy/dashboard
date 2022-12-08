@@ -35,6 +35,7 @@ export default {
     S3Create: S3CephXsky,
     CephCreate: S3CephXsky,
     XskyCreate: S3CephXsky,
+    XgfsCreate: S3CephXsky,
     GoogleCreate: Google,
     CtyunCreate: AwsHuawei,
     ApsaraCreate: Apsara,

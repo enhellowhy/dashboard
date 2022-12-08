@@ -74,6 +74,9 @@ export default {
           typesMap.public[key] = CLOUDACCOUNT_TYPES.public[key]
         })
       }
+      typesMap.nas = {}
+      typesMap.nas.xgfs = CLOUDACCOUNT_TYPES.nas.xgfs
+      console.log(typesMap)
       return typesMap
     },
   },
@@ -103,10 +106,10 @@ export default {
       }
       if (typeof item === 'string') {
         if (item === 'private' && this.globalSettingSetupKeys.indexOf('vmware') > -1) return true
-        return this.globalSettingSetupKeys.indexOf(item) > -1 || (this.globalSettingSetupKeys.indexOf('bill') > -1 && this.isBillEnv(item))
+        return this.globalSettingSetupKeys.indexOf(item) > -1 || (this.globalSettingSetupKeys.indexOf('bill') > -1 && this.isBillEnv(item)) || item === 'nas'
       }
       // console.log(this.globalSettingSetupKeys, item.provider.toLowerCase(), this.globalSettingSetupKeys.indexOf(item.provider.toLowerCase()) > -1)
-      return this.globalSettingSetupKeys.indexOf(item.provider.toLowerCase()) > -1 || (this.globalSettingSetupKeys.indexOf('bill') > -1 && this.isBillItem(item))
+      return this.globalSettingSetupKeys.indexOf(item.provider.toLowerCase()) > -1 || (this.globalSettingSetupKeys.indexOf('bill') > -1 && this.isBillItem(item)) || item.provider.toLowerCase() === 'xgfs'
     },
     isBillEnv (env) {
       if (env === 'public') {

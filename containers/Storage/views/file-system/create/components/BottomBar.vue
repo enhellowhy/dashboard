@@ -1,7 +1,7 @@
 <template>
   <page-footer>
     <template v-slot:right>
-      <price-fetcher :values="values" :cloudAccountId="cloudAccountId" />
+<!--      <price-fetcher :values="values" :cloudAccountId="cloudAccountId" />-->
       <div class="btns-wrapper d-flex align-items-center">
         <a-button
           class="ml-3"
@@ -9,7 +9,7 @@
           native-type="submit"
           html-type="submit"
           @click="handleConfirm"
-          :loading="loading">{{ $t('common_258') }}</a-button>
+          :loading="loading">{{ confirmText }}</a-button>
       </div>
     </template>
   </page-footer>
@@ -17,51 +17,115 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import PriceFetcher from '@/components/PriceFetcher'
+import { getCloudEnvOptions } from '@/utils/common/hypervisor'
+// import PriceFetcher from '@/components/PriceFetcher'
+import { WORKFLOW_TYPES } from '@/constants/workflow'
+import workflowMixin from '@/mixins/workflow'
+import i18n from '@/locales'
 
 export default {
   name: 'BottomBar',
-  components: {
-    PriceFetcher,
-  },
+  // components: {
+  //   PriceFetcher,
+  // },
   inject: ['form'],
+  mixins: [workflowMixin],
   props: {
     values: {
       type: Object,
     },
     cloudAccountId: String,
+    isRepeated: Boolean,
   },
   data () {
+    const cloudEnvOptions = getCloudEnvOptions('nas_brands', true)
     return {
+      cloudEnvOptions,
       loading: false,
     }
   },
   computed: {
     ...mapGetters(['userInfo']),
+    confirmText () {
+      return this.isOpenWorkflow ? this.$t('compute.text_288') : this.$t('common_258')
+    },
+    isOpenWorkflow () {
+      return this.checkWorkflowEnabled(WORKFLOW_TYPES.APPLY_FILESYSTEM)
+    },
   },
   methods: {
     doCreate (data) {
       return new this.$Manager('file_systems').create({ data })
     },
+    doForecast () {
+      return new Promise((resolve, reject) => {
+        if (this.isRepeated) {
+          const err = new Error(this.$t('storage.xgfs.nfs.name.repeated'))
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    },
+    doCreateWorkflow (params) {
+      // const { project, domain, tag, ...rest } = values
+      // let meta = {}
+      // if (tag) {
+      //   meta = tag
+      // }
+      // const params = {
+      //   ...rest,
+      //   __meta__: meta,
+      //   project_domain: (domain && domain.key) || this.userInfo.projectDomainId,
+      //   project_id: (project && project.key) || this.userInfo.projectId,
+      // }
+      const variables = {
+        project_domain: params.project_domain,
+        project: params.project_id,
+        process_definition_key: WORKFLOW_TYPES.APPLY_FILESYSTEM,
+        initiator: this.$store.getters.userInfo.id,
+        description: params.reason,
+        paramter: JSON.stringify(params),
+        // price: this.price,
+      }
+      // this._getProjectDomainInfo(variables)
+      new this.$Manager('workflow_process_instances', 'v1')
+        .create({ data: { variables } })
+        .then(() => {
+          this.$message.success(i18n.t('storage.xgfs.nfs.apply.submit', [params.name]))
+          this.$router.push('/workflow')
+        })
+        .catch((error) => {
+          throw error
+        })
+    },
     async handleConfirm () {
       this.loading = true
       try {
         const values = await this.form.fc.validateFields()
+        console.log(values)
         const params = {
           billing_type: values.billing_type,
           name: values.name,
           description: values.description,
+          reason: values.reason,
           network_id: values.network,
           zone_id: values.zone_id,
-          project_domain: values.project_domain,
+          project_domain: values.project_domain || this.userInfo.projectDomainId,
+          // project_domain: (domain && domain.key) || this.userInfo.projectDomainId,
+          // project_id: (project && project.key) || this.userInfo.projectId,
+          project_id: (values.project && values.project.key) || this.userInfo.projectId,
+          user_id: this.userInfo.id,
         }
         if (values.tag) {
           params.__meta__ = values.tag
         }
+        params.cloud_env = this.cloudEnvOptions[0].key
         if (values.sku) {
           params.file_system_type = values.sku.file_system_type
           params.protocol = values.sku.protocol
           params.storage_type = values.sku.storage_type
+          params.manager_id = values.sku.external_id
         }
         if (values.capacity > 0) {
           params.capacity = values.capacity
@@ -79,11 +143,18 @@ export default {
         } else {
           params.duration = values.duration
         }
-
-        await this.doCreate(params)
-        this.loading = false
-        this.$message.success(this.$t('network.nat.create.success'))
-        this.$router.push('/nas')
+        if (this.isOpenWorkflow) {
+          await this.doForecast()
+            .then(() => {
+              this.doCreateWorkflow(params)
+            })
+          // await this.doCreateWorkflow(params)
+        } else {
+          await this.doCreate(params)
+          this.loading = false
+          this.$message.success(this.$t('network.nat.create.success'))
+          this.$router.push('/nas')
+        }
       } catch (error) {
         this.loading = false
         throw error

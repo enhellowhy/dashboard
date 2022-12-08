@@ -991,6 +991,17 @@
       "delete_failed": "Deletion failed",
       "unknown": "Unknown"
     },
+    "mountTargetAcl": {
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "adding": "Adding",
+      "add_failed": "Add failed",
+      "removing": "Removing",
+      "remove_failed": "Remove failed",
+      "updating": "Updating",
+      "update_failed": "Update failed",
+      "unknown": "Unknown"
+    },
     "accessGroup": {
       "available": "Available",
       "deleting": "Deleting",
@@ -2951,7 +2962,7 @@
       "SATA": "Common IO cloud hard Disk",
       "rbd": "Ceph RBD",
       "rbd-hybrid": "High-effective cloud hard drive",
-      "rbd-ssd": "Common SSD",
+      "rbd-ssd": "High-Performance SSD",
       "rbd-enhanced-ssd": "Enhanced SSD",
       "gpfs": "GPFS",
       "issci": "issci",
@@ -5306,6 +5317,7 @@
   "common.auditing": "Auditing",
   "common.rebuild_resource": "Rebuild Resource",
   "common.bucket.apply": "Bucket apply",
+  "common.filesystem.apply": "FileSystem apply",
   "common.loadbalancer.apply": "Loadbalancer apply",
   "common.choose.host": "Please choose a host",
   "common.choose.server": "Please select a virtual machine",

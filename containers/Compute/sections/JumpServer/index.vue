@@ -51,7 +51,7 @@ export default {
     switchDisabled () {
       // if (this.diskType === 'gpfs') return true
       // if (this.availableHostCount < 2) return true
-      return false
+      return true
     },
   },
   created () {

@@ -229,7 +229,13 @@
 <!--          <a-form-item v-show="!isServertemplate" v-if="isKvm" :label="$t('dictionary.instancegroup')" :extra="$t('compute.text_1158')">-->
 <!--            <instance-groups :decorators="decorators.groups" :params="instanceGroupsParams" />-->
 <!--          </a-form-item>-->
-          <a-form-item v-show="!isServertemplate" v-if="isKvm" :label="$t('compute.jumpserver')">
+          <a-form-item v-show="!isServertemplate" v-if="isKvm">
+            <span slot="label">
+              {{ $t('compute.jumpserver') }}&nbsp;
+              <a-tooltip :title="this.$t('compute.jumpserver.tips')">
+                <a-icon type="question-circle-o" />
+              </a-tooltip>
+            </span>
             <jump-server
               :decorator="decorators.jumpserver"
               :domain="form.fd.domain"

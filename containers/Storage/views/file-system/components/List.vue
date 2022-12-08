@@ -17,8 +17,8 @@ import ColumnsMixin from '../mixins/columns'
 import SingleActionsMixin from '../mixins/singleActions'
 import ListMixin from '@/mixins/list'
 import expectStatus from '@/constants/expectStatus'
-import { getFilter, getStatusFilter, getBrandFilter, getAccountFilter, getProjectDomainFilter, getDescriptionFilter, getCreatedAtFilter } from '@/utils/common/tableFilter'
-import { disableDeleteAction } from '@/utils/common/tableActions'
+import { getFilter, getStatusFilter, getBrandFilter, getAccountFilter, getTenantFilter, getProjectDomainFilter, getDescriptionFilter, getCreatedAtFilter } from '@/utils/common/tableFilter'
+import { disableDeleteAction, getSetPublicAction } from '@/utils/common/tableActions'
 import WindowsMixin from '@/mixins/windows'
 import GlobalSearchMixin from '@/mixins/globalSearch'
 
@@ -54,6 +54,7 @@ export default {
             },
           },
           description: getDescriptionFilter(),
+          projects: getTenantFilter(),
           status: getStatusFilter('nas'),
           cloudaccount: getAccountFilter(),
           brand: getBrandFilter('nas_brands'),
@@ -147,6 +148,49 @@ export default {
                   validate: selectedLength,
                   tooltip: notSelectedTooltip,
                 }),
+              },
+              getSetPublicAction(this, {
+                name: this.$t('dictionary.filesystem'),
+                scope: 'project',
+                resource: 'file_systems',
+              }, {
+                permission: 'buckets_perform_public',
+              }),
+              {
+                label: this.$t('storage.text_96', [this.$t('dictionary.project')]),
+                permission: 'buckets_perform_change_owner',
+                action: row => {
+                  this.createDialog('ChangeOwenrDialog', {
+                    name: this.$t('storage.filesystem'),
+                    data: this.list.selectedItems,
+                    columns: this.columns,
+                    onManager: this.onManager,
+                    refresh: this.refresh,
+                    resource: 'file_systems',
+                  })
+                },
+                meta: row => {
+                  if (this.list.selectedItems.some(item => item.is_public)) {
+                    return {
+                      validate: false,
+                      tooltip: this.$t('common_614'),
+                    }
+                  }
+                  const ret = {
+                    validate: false,
+                    tooltip: '',
+                  }
+                  if (this.isProjectMode) {
+                    ret.tooltip = this.$t('common_601')
+                    return ret
+                  }
+                  const domainIds = this.list.selectedItems.map(item => item.domain_id)
+                  const validate = R.uniq(domainIds).length === 1
+                  return {
+                    validate,
+                    tooltip: !validate && this.$t('storage.text_97_1', [this.$t('dictionary.domain')]),
+                  }
+                },
               },
               disableDeleteAction(Object.assign(this, {
                 permission: 'file_systems_update',

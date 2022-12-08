@@ -43,9 +43,13 @@ export default {
     const option = this.getBrand()
     const name = option.key.toLowerCase()
     const small = ['DStack', 'OpenStack']
+    const big = ['Xgfs', 'Xsky']
     let fontSize = '20px'
     if (small.includes(this.name)) {
       fontSize = '16px'
+    }
+    if (big.includes(this.name)) {
+      fontSize = '32px'
     }
     const cloudPodsIcon = this.cloudPodsIcon
     return (

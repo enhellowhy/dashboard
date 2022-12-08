@@ -20,6 +20,26 @@
       <a-form-item :label="keySecretField.label.s">
         <a-input-password v-decorator="decorators.password" :placeholder="keySecretField.placeholder.s" />
       </a-form-item>
+      <a-form-item :label="$t('storage.filesystem.storage.type')" v-if="provider.toLowerCase() === 'xgfs'">
+        <a-radio-group v-decorator="decorators.storage_type">
+          <a-radio-button v-for="item in storageTypeOpts" :value="item.key" :key="item.key">{{ item.label }}</a-radio-button>
+        </a-radio-group>
+      </a-form-item>
+      <a-form-item  v-if="provider.toLowerCase() === 'xgfs'">
+        <span slot="label">
+          {{ $t('cloudenv.sync_only') }}&nbsp;
+          <a-tooltip :title="this.$t('cloudenv.sync_only.tips')">
+            <a-icon type="question-circle-o" />
+          </a-tooltip>
+        </span>
+        <a-switch :checkedChildren="$t('compute.text_115')" :unCheckedChildren="$t('compute.text_116')" v-decorator="decorators.sync_only" />
+      </a-form-item>
+      <a-form-item :label="$t('cloudenv.xms_auth_token')" v-if="provider.toLowerCase() === 'xgfs'">
+        <a-input v-decorator="decorators.xms_auth_token" :placeholder="$t('cloudenv.xms_auth_token.tips')" />
+      </a-form-item>
+      <a-form-item :label="$t('cloudenv.mount_target_domain_name')" v-if="provider.toLowerCase() === 'xgfs'">
+        <a-input v-decorator="decorators.mount_target_domain_name" :placeholder="$t('cloudenv.mount_target_domain_name.tips')" />
+      </a-form-item>
       <domain-project :fc="form.fc" :form-layout="formLayout" :decorators="{ project: decorators.project, domain: decorators.domain, auto_create_project: decorators.auto_create_project }" />
       <proxy-setting :fc="form.fc" :fd="form.fd" ref="proxySetting" />
       <auto-sync :fc="form.fc" :form-layout="formLayout" />
@@ -36,6 +56,7 @@ import { getCloudaccountDocs, keySecretFields } from '@Cloudenv/views/cloudaccou
 import { isRequired } from '@/utils/validate'
 import createMixin from './createMixin'
 import DomainProject from '../../../components/DomainProject'
+import i18n from '@/locales'
 
 export default {
   name: 'S3CephXsky',
@@ -46,6 +67,17 @@ export default {
     ShareMode,
   },
   mixins: [createMixin],
+  props: {
+    storageTypeOpts: {
+      type: Array,
+      default: () => [
+        { label: i18n.t('storage.filesystem.storage.type.standard'), key: 'standard' },
+        { label: i18n.t('storage.filesystem.storage.type.performance'), key: 'performance' },
+        { label: i18n.t('storage.filesystem.storage.type.capacity'), key: 'capacity' },
+        // { label: i18n.t('storage.filesystem.storage.type.advance'), key: 'advance' },
+      ],
+    },
+  },
   data () {
     const keySecretField = keySecretFields[this.provider.toLowerCase()]
     return {
@@ -94,6 +126,40 @@ export default {
           {
             rules: [
               { required: true, message: keySecretField.placeholder.s },
+            ],
+          },
+        ],
+        storage_type: [
+          'storage_type',
+          {
+            initialValue: 'standard',
+            rules: [
+              { required: true, message: this.$t('network.text_460') },
+            ],
+          },
+        ],
+        sync_only: [
+          'sync_only',
+          {
+            valuePropName: 'checked',
+            initialValue: false,
+          },
+        ],
+        xms_auth_token: [
+          'xms_auth_token',
+          {
+            initialValue: '',
+            rules: [
+              { required: true, message: this.$t('cloudenv.xms_auth_token.tips') },
+            ],
+          },
+        ],
+        mount_target_domain_name: [
+          'mount_target_domain_name',
+          {
+            initialValue: '',
+            rules: [
+              { required: true, message: this.$t('cloudenv.mount_target_domain_name.tips') },
             ],
           },
         ],

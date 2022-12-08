@@ -40,6 +40,7 @@ export default {
       const params = {
         ...values,
         scope: 'domain',
+        enabled: true,
       }
       if (this.form.getFieldValue('billing_type') === 'postpaid') {
         params.postpaid_status = 'available'

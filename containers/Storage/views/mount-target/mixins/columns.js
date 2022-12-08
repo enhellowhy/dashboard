@@ -30,5 +30,23 @@ export default {
       getCopyWithContentTableColumn({ field: 'access_group', title: i18n.t('dictionary.access_group') }),
       getStatusTableColumn({ statusModule: 'mountTarget' }),
     ]
+    this.nfsColumns = [
+      getNameDescriptionTableColumn({
+        field: 'network_id', // no use 'name', it displays error.
+        hideField: true,
+        edit: false,
+        title: i18n.t('storage.text_40'),
+        slotCallback: row => {
+          return (
+            <side-page-trigger onTrigger={ () => this.handleOpenSidepage(row) }>{ row.name }</side-page-trigger>
+          )
+        },
+      }),
+      // getCopyWithContentTableColumn({ field: 'vpc', title: i18n.t('dictionary.vpc') }),
+      // getCopyWithContentTableColumn({ field: 'network', title: i18n.t('dictionary.network') }),
+      getCopyWithContentTableColumn({ field: 'network_id', title: i18n.t('storage.mount.target.domain.name') }),
+      // getCopyWithContentTableColumn({ field: 'access_group', title: i18n.t('dictionary.access_group') }),
+      getStatusTableColumn({ statusModule: 'mountTarget' }),
+    ]
   },
 }

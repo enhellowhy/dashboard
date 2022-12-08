@@ -445,6 +445,11 @@ export default {
     info: ['unavailable', 'unknown'],
     danger: ['delete_failed', 'create_failed'],
   },
+  mountTargetAcl: {
+    success: ['available'],
+    info: ['unavailable', 'unknown'],
+    danger: ['remove_failed', 'add_failed'],
+  },
   sshProxyEndpoints: {
     success: ['available'],
     info: ['unavailable', 'unknown'],

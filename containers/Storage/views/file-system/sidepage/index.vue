@@ -35,16 +35,22 @@
 import SingleActionsMixin from '../mixins/singleActions'
 import ColumnsMixin from '../mixins/columns'
 import FileSystemDetail from './Detail'
+import MountTargetAcl from './Acl'
+import Files from './Files'
 import SidePageMixin from '@/mixins/sidePage'
 import WindowsMixin from '@/mixins/windows'
-import MountTargetList from '@Storage/views/mount-target/components/List'
+// import MountTargetList from '@Storage/views/mount-target/components/List'
+import NfsShareList from '@Storage/views/mount-target/components/NfsShareList'
 import Actions from '@/components/PageList/Actions'
 
 export default {
   name: 'FileSystemSidePage',
   components: {
     FileSystemDetail,
-    MountTargetList,
+    Files,
+    MountTargetAcl,
+    // MountTargetList,
+    NfsShareList,
     Actions,
   },
   mixins: [SidePageMixin, WindowsMixin, ColumnsMixin, SingleActionsMixin],
@@ -52,14 +58,19 @@ export default {
     return {
       detailTabs: [
         { label: this.$t('storage.text_81'), key: 'file-system-detail' },
-        { label: this.$t('dictionary.mount_target'), key: 'mount-target-list' },
+        { label: this.$t('storage.xgfs.nfs.files'), key: 'files' },
+        // { label: this.$t('dictionary.mount_target'), key: 'mount-target-list' },
+        // { label: this.$t('storage.xgfs.nfs.share'), key: 'nfs-share-list' },
+        { label: this.$t('storage.xgfs.nfs.share.acl'), key: 'mount-target-acl' },
         { label: this.$t('storage.text_85'), key: 'event-drawer' },
       ],
     }
   },
   computed: {
     getParams () {
-      if (this.params.windowData.currentTab === 'mount-target-list') {
+      // if (this.params.windowData.currentTab === 'mount-target-list') {
+      // if (this.params.windowData.currentTab === 'nfs-share-list') {
+      if (this.params.windowData.currentTab === 'mount-target-acl') {
         return {
           file_system_id: this.detailData.id,
         }

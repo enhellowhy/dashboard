@@ -15,6 +15,7 @@ const zstackLogo = require('../../../../src/assets/images/providers/zstack.svg')
 const s3Logo = require('../../../../src/assets/images/providers/s3.svg')
 const cephLogo = require('../../../../src/assets/images/providers/ceph.svg')
 const xskyLogo = require('../../../../src/assets/images/providers/xsky.svg')
+const xgfsLogo = require('../../../../src/assets/images/providers/xgfs.svg')
 const googleLogo = require('../../../../src/assets/images/providers/gcp.svg')
 const ctyunLogo = require('../../../../src/assets/images/providers/tianyi.svg')
 const apsaraLogo = require('../../../../src/assets/images/providers/apsara.svg')
@@ -181,12 +182,23 @@ export const CLOUDACCOUNT_TYPES = {
       hiddenName: true,
     },
   },
+  nas: {
+    xgfs: {
+      name: providerMap.xgfs.label,
+      logo: xgfsLogo,
+      logoStyle: 'width: 100px',
+      component: 'XskyCreate',
+      provider: providerMap.xgfs.key,
+      hiddenName: true,
+    },
+  },
 }
 
 export const ENV_TITLE = {
   public: i18n.t('cloudenv.text_122'),
   storage: i18n.t('cloudenv.text_123'),
   private: i18n.t('cloudenv.text_124'),
+  nas: i18n.t('cloudenv.nas'),
 }
 
 export function getCloudaccountDocs (scope) {
@@ -205,6 +217,7 @@ export function getCloudaccountDocs (scope) {
     s3: i18n.t('cloudenv.text_134', [docs_path]),
     ceph: i18n.t('cloudenv.text_135', [docs_path]),
     xsky: i18n.t('cloudenv.text_136', [docs_path]),
+    xgfs: i18n.t('cloudenv.create_xgfs', [docs_path]),
     google: i18n.t('cloudenv.text_137', [docs_path]),
     ctyun: i18n.t('cloudenv.text_138', [docs_path]),
     apsara: i18n.t('cloudenv.create_apsara_cloud_account', [docs_path]),
@@ -425,6 +438,19 @@ export const keySecretFields = {
       s: i18n.t('cloudenv.text_147'),
     },
   },
+  xgfs: {
+    k: 'access_key_id',
+    s: 'access_key_secret',
+    text: 'XGFS',
+    placeholder: {
+      k: i18n.t('cloudenv.text_151'),
+      s: i18n.t('cloudenv.text_150'),
+    },
+    label: {
+      k: i18n.t('cloudenv.text_94'),
+      s: i18n.t('cloudenv.text_147'),
+    },
+  },
   google: {
     s: 'gcp_private_key',
     k: 'gcp_private_key_id',
@@ -570,6 +596,7 @@ export const notSupportSelectRegion = [
   providerMap.ceph.key,
   providerMap.s3.key,
   providerMap.xsky.key,
+  providerMap.xgfs.key,
   providerMap.bingocloud.key,
   providerMap.openstack.key,
   providerMap.dstack.key,

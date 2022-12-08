@@ -132,6 +132,7 @@ export default {
     },
     async fetchRates (skuList = this.skuList) {
       if (!hasMeterService()) return
+      if (hasMeterService()) return
       const managerRates = new this.$Manager('cloud_sku_rates', 'v1')
       const params = []
       skuList.forEach(sku => {

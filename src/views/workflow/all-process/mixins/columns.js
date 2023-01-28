@@ -14,6 +14,25 @@ const R = require('ramda')
 
 export default {
   created () {
+    const getStatusToolTip = (row) => {
+      if (row.metadata) {
+        // const sysWarn = row.metadata.sys_warn
+        // const titleCon = sysWarn || sysError
+        const sysError = row.metadata.sys_error
+        const titleCon = sysError
+        if (titleCon) {
+          // const aIcon = <a-icon type="exclamation-circle" class={ { 'ml-1 oc-pointer': true, 'warning-color': sysWarn, 'error-color': sysError } } />
+          const aIcon = <a-icon type="exclamation-circle" class={ { 'm-1 oc-pointer': true, 'error-color': sysError } } />
+          return <a-tooltip placement="right">
+            <template slot="title">
+              { titleCon }
+            </template>
+            { aIcon }
+          </a-tooltip>
+        }
+      }
+      return null
+    }
     this.columns = [
       getCopyWithContentTableColumn({
         field: 'id',
@@ -123,6 +142,14 @@ export default {
             // }
             if (row.status === 'success' || row.status === 'fail' || row.status === 'operating') {
               // if ((row.state === 'COMPLETED' || row.state === 'CUSTOM_TODO') && bizStatus) {
+              if (row.status === 'fail') {
+                return [
+                  <div class="d-flex">
+                    <status status={row.status} statusModule={'workflowBiz'}/>
+                    { getStatusToolTip(row) }
+                  </div>,
+                ]
+              }
               return [
                 // <div class="d-flex"><status status={ bizStatus } statusModule={ 'workflowBiz' } />{ bizStatus === 'fail' ? tooltip : null }</div>,
                 <div class="d-flex">

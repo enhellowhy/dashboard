@@ -115,7 +115,7 @@ export default {
       const sysDisks = disksInfo.filter(v => v.disk_type === 'sys' && v.index === 0)
       const dataDisks = disksInfo.filter(v => v.index !== 0 || v.disk_type !== 'sys')
       if (sysDisks && sysDisks.length > 0) {
-        const sysKey = sysDisks[0].storage_type
+        const sysKey = sysDisks[0].storage_type + '-' + sysDisks[0].medium_type
         image = sysDisks[0].image || '-'
         imageId = sysDisks[0].image_id
         sysDisk[sysKey] = this._dealSize(sysDisks)
@@ -123,7 +123,7 @@ export default {
       if (dataDisks && dataDisks.length > 0) {
         for (const k in ALL_STORAGE) {
           const e = ALL_STORAGE[k]
-          let sameType = dataDisks.filter(v => v.storage_type === e.value)
+          let sameType = dataDisks.filter(v => v.storage_type + '-' + v.medium_type === e.value)
           if (this.isOpenStack) {
             sameType = dataDisks.filter(v => v.storage_type.includes(e.value))
           }

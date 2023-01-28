@@ -75,7 +75,8 @@ export default {
       return this.params.data
     },
     isOpenWorkflow () {
-      return this.checkWorkflowEnabled(this.WORKFLOW_TYPES.APPLY_SERVER_CHANGECONFIG)
+      return false
+      // return this.checkWorkflowEnabled(this.WORKFLOW_TYPES.APPLY_SERVER_CHANGECONFIG)
     },
   },
   methods: {

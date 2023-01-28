@@ -22,6 +22,12 @@ export const toVmName = obj => {
   if (type === 'mem') {
     return i18n.t('bill.text_158')
   }
+  if (type === 'filesystem') {
+    return getFieldCn(obj.model)
+  }
+  if (type === 'bucket') {
+    return getFieldCn(obj.model)
+  }
   if (type === 'disk') {
     return getFieldCn(obj.medium_type + ' - ' + obj.storage_type)
   }

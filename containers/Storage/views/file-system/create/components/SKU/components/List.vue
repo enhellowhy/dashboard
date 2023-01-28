@@ -95,7 +95,7 @@ export default {
                   price = rate.month_price
                 }
                 return [
-                  <span style="color: rgb(230, 139, 80);">{ price.toFixed(2) }</span>,
+                  <span style="color: rgb(230, 139, 80);">{ price.toFixed(3) }</span>,
                   <span> { this.$t('currencys.CNY') } / GB / {unit}</span>,
                 ]
               }
@@ -132,39 +132,60 @@ export default {
     },
     async fetchRates (skuList = this.skuList) {
       if (!hasMeterService()) return
-      if (hasMeterService()) return
-      const managerRates = new this.$Manager('cloud_sku_rates', 'v1')
-      const params = []
-      skuList.forEach(sku => {
-        // eslint-disable-next-line camelcase
-        let { provider, region_ext_id, file_system_type, nas = 'nas', storage_type } = sku
-        if (sku.cloud_env) provider = sku.cloud_env.toLowerCase()
-        // eslint-disable-next-line camelcase
-        const _arr = [provider.toLowerCase(), region_ext_id, '', nas, [file_system_type, storage_type].join('-')]
-        const key = _arr.join('::')
-        sku.data_key = key
-        params.push(key)
-      })
+      // if (hasMeterService()) return
+      // const managerRates = new this.$Manager('cloud_sku_rates', 'v1')
+      const managerRates = new this.$Manager('price_infos', 'v1')
+      // const { data: { data = [] } } = await new this.$Manager('price_infos', 'v1').get({ id: '', params })
+      // this.pricesList = data
+      const params = {
+        scope: this.$store.getters.scope,
+        res_type: 'filesystem',
+      }
+      // const params = []
+      // skuList.forEach(sku => {
+      //   // eslint-disable-next-line camelcase
+      //   let { provider, region_ext_id, file_system_type, nas = 'nas', storage_type } = sku
+      //   if (sku.cloud_env) provider = sku.cloud_env.toLowerCase()
+      //   // eslint-disable-next-line camelcase
+      //   const _arr = [provider.toLowerCase(), region_ext_id, '', nas, [file_system_type, storage_type].join('-')]
+      //   const key = _arr.join('::')
+      //   sku.data_key = key
+      //   params.push(key)
+      // })
       // eslint-disable-next-line camelcase
-      const param_keys = params.join('$')
+      // const param_keys = params.join('$')
       try {
-        const rateData = {}
+        // const rateData = {}
         this.rateLoading = true
-        const { data = {} } = await managerRates.list({
-          params: {
-            param_keys,
-          },
-        })
-        const retList = data.data
-        if (retList && retList.length > 0) {
-          retList.forEach(item => {
-            rateData[item.data_key] = item
+        for (const sku of skuList) {
+          console.log(sku.storage_type, 'adfa')
+          params.spec = sku.storage_type
+          const { data = {} } = await managerRates.list({
+            params,
           })
+          const retList = data.data
+          if (retList && retList.length > 0) {
+            // retList.forEach(item => {
+            //   rateData[item.data_key] = item
+            // })
+            // sku.rate = rateData[sku.data_key]
+            sku.rate = retList[0]
+            console.log(sku.rate, 'adfa')
+          }
         }
-        this.skuList = skuList.map(sku => {
-          sku.rate = rateData[sku.data_key]
-          return sku
-        })
+        // const { data = {} } = await managerRates.list({
+        //   params,
+        // })
+        // const retList = data.data
+        // if (retList && retList.length > 0) {
+        //   retList.forEach(item => {
+        //     rateData[item.data_key] = item
+        //   })
+        // }
+        // this.skuList = skuList.map(sku => {
+        //   sku.rate = rateData[sku.data_key]
+        //   return sku
+        // })
       } catch (err) {
         throw err
       } finally {
@@ -184,6 +205,12 @@ export default {
         if (this.filterSkuCallback && R.type(this.filterSkuCallback) === 'Function') {
           this.skuList = this.skuList.filter(this.filterSkuCallback)
         }
+        this.skuList.sort((p1, p2) => {
+          if (p1.storage_type === 'standard') {
+            return -1
+          }
+          return 1
+        })
         this.fetchRates()
       } catch (err) {
         throw err

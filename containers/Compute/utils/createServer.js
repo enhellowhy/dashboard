@@ -793,6 +793,7 @@ export class GenCreateData {
     if (item.storage_id) {
       ret.storage_id = item.storage_id
     }
+    console.log('ssssssssssss', ret, ret.backend)
     if ((this.fd.hypervisor === HYPERVISORS_MAP.kvm.key || this.fd.hypervisor === HYPERVISORS_MAP.cloudpods.key) && ret.backend.indexOf('local') !== -1) {
       ret.backend = ret.backend.split('-')[0]
     } else if (this.fd.hypervisor === HYPERVISORS_MAP.kvm.key || this.fd.hypervisor === HYPERVISORS_MAP.cloudpods.key) {
@@ -852,6 +853,8 @@ export class GenCreateData {
     if (this.fd.hypervisor === HYPERVISORS_MAP.esxi.key) {
       dataDiskType = dataDiskType || sysDiskType
     }
+    // 需要保持系统盘和数据盘统一类型，所以dataDiskType不维护，没有值，直接采用sysDiskType
+    dataDiskType = dataDiskType || sysDiskType
     const dataDisk = []
     R.forEachObjIndexed((value, key) => {
       const diskObj = {
@@ -881,6 +884,8 @@ export class GenCreateData {
       }
       if (this.fi.dataDiskMedium) {
         diskObj.medium = this.fi.dataDiskMedium
+      } else if (this.fi.systemDiskMedium) {
+        diskObj.medium = this.fi.systemDiskMedium
       }
       dataDisk.push(diskObj)
     }, this.fd.dataDiskSizes)

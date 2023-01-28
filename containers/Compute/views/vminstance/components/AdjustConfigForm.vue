@@ -996,6 +996,7 @@ export default {
       }
     },
     fetchLocalStorage () {
+      console.log('fetchLocalStorage')
       const params = {
         enabled: true,
         host_id: this.selectedItem.host_id,
@@ -1007,6 +1008,8 @@ export default {
           if (data.length) {
             const firstStorage = data[0]
             this.dataDiskType = 'local-' + firstStorage.medium_type
+            console.log('2fetchLocalStorage')
+            console.log(this.dataDiskType)
           }
         })
     },
@@ -1051,9 +1054,9 @@ export default {
         this.$set(this.form.fd, key, value)
         if (~key.indexOf('dataDiskTypes') && R.is(Object, values)) {
           this.dataDiskType = values[key].key
-          if (this.dataDiskType === 'local') {
-            this.fetchLocalStorage()
-          }
+          // if (this.dataDiskType === 'local') {
+          //   this.fetchLocalStorage()
+          // }
         }
         if (~key.indexOf('dataDiskSizes[')) {
           const uid = key.replace(/dataDiskSizes\[(.+)\]/, '$1')
@@ -1074,6 +1077,7 @@ export default {
       const dataDisk = []
       let index = 0
       const dataDisks = this.$refs.dataDiskRef.dataDisks
+      const { systemDiskType = {} } = this.form.fd
       R.forEachObjIndexed((value, key) => {
         const diskObj = {
           disk_type: 'data',
@@ -1145,6 +1149,7 @@ export default {
           //   }
           // }
           if (values.dataDiskTypes[key]) {
+            // console.log('jjjjjjaaaaaaaaaa', values.dataDiskTypes[key], values.dataDiskTypes)
             // 针对kvm-local盘特殊处理
             let diskKey = values.dataDiskTypes[key].key
             if (diskKey.indexOf('rbd') !== -1 && this.needLocalMedium && this.form.fi.capability.storage_sched && !R.isEmpty(this.form.fi.capability.storage_sched)) {
@@ -1179,6 +1184,20 @@ export default {
               diskObj.backend = diskKey
             }
           }
+        } else if (systemDiskType) {
+          // console.log('jjjjjjbbbbbbbbbb', systemDiskType)
+          // 针对kvm-local盘特殊处理
+          let diskKey = systemDiskType.key
+          if (diskKey.indexOf('rbd') !== -1 && this.needLocalMedium && this.form.fi.capability.storage_sched && !R.isEmpty(this.form.fi.capability.storage_sched)) {
+            diskObj.schedtags = [
+              { id: this.form.fi.capability.storage_sched[diskKey] },
+            ]
+            diskObj.schedtags[0].strategy = 'require'
+          }
+          if ((diskKey.indexOf('rbd') !== -1 || diskKey.indexOf('local') !== -1) && this.needLocalMedium) {
+            diskKey = diskKey.split('-')[0]
+          }
+          diskObj.backend = diskKey
         }
         if (values.dataDiskFiletypes && values.dataDiskFiletypes[key]) {
           diskObj.filetype = values.dataDiskFiletypes[key]
@@ -1203,6 +1222,11 @@ export default {
         // 磁盘介质
         if (values.dataDiskTypes && values.dataDiskTypes[key]) {
           const { key: dataDiskKey = '' } = values.dataDiskTypes[key] || {}
+          if (this.needLocalMedium && dataDiskKey.split('-')[1]) {
+            diskObj.medium = dataDiskKey.split('-')[1]
+          }
+        } else if (systemDiskType) {
+          const { key: dataDiskKey = '' } = systemDiskType || {}
           if (this.needLocalMedium && dataDiskKey.split('-')[1]) {
             diskObj.medium = dataDiskKey.split('-')[1]
           }
@@ -1355,7 +1379,7 @@ export default {
         } else {
           let diskSize = this.disk || 0
           const disk_storage_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[0]
-          const disk_medium_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[1]
+          let disk_medium_type = this.dataDiskType === '' ? this.dataDiskType : this.dataDiskType.split('-')[1]
           if (!this.disk && sysdisks) {
             // diskSize = sysdisks.reduce((sum, disk) => { return sum + disk.value }, 0) / this.count
             diskSize = 0
@@ -1364,6 +1388,9 @@ export default {
           // console.log(this.selectedItem)
           // params.spec = `cpu=${this.form.fd.vcpu}core;mem=${sizestrWithUnit(this.form.fd.vmem, 'M', 1024)};disk=${diskSize}GB`
           // params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=${systemDiskSize},model=${systemDiskType.key.split('-')[1]}::${systemDiskType.key.split('-')[0]};disk=${diskSize},model=${datadiskmedium}::${dataDiskType}`
+          if (!disk_medium_type && medium_type) {
+            disk_medium_type = medium_type
+          }
           params.spec = `cpu=${this.form.fd.vcpu},model=${sku.instance_type_family};mem=${this.form.fd.vmem / 1024};disk=${systemDiskSize},model=${medium_type}::${storage_type};disk=${diskSize},model=${disk_medium_type}::${disk_storage_type}`
         }
       } else {

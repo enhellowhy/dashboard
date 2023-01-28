@@ -269,7 +269,9 @@ export default {
       return Math.max(remain, 0)
     },
     diskTypeLabel () {
-      return _.get(this.dataDisks, '[0].diskType.label')
+      // console.log('infdis type', this.form.fd.systemDiskType)
+      return this.form.fd.systemDiskType.label
+      // return _.get(this.dataDisks, '[0].diskType.label')
     },
     getSnapshotsParams () {
       const staticParams = {
@@ -510,9 +512,9 @@ export default {
       if (this.getHypervisor() === HYPERVISORS_MAP.esxi.key) {
         return this.$te(`common.storage.${diskTypeLabel}`) ? this.$t(`common.storage.${diskTypeLabel}`) : diskTypeLabel
       }
-      if (i === 0) {
-        return ''
-      }
+      // if (i === 0) {
+      //   return ''
+      // }
       if (this.$te(`common.storage.${diskTypeLabel}`)) {
         return this.$t(`common.storage.${diskTypeLabel}`)
       }

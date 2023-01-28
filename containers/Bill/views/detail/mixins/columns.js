@@ -6,6 +6,7 @@ import {
 import { numerify } from '@/filters'
 import i18n from '@/locales'
 import { mathRoundFix } from '@/utils/utils'
+import { getFieldCn } from '@Bill/views/rate/utils'
 
 export default {
   created () {
@@ -41,6 +42,23 @@ export default {
               </div>,
             ]
           },
+        },
+      },
+      {
+        field: 'spec',
+        title: i18n.t('storage.text_38'),
+        align: 'left',
+        formatter: ({ row }) => {
+          switch (row.res_type) {
+            case 'bucket':
+              return getFieldCn(row.spec.split(' ')[0])
+            case 'filesystem':
+              return getFieldCn(row.spec.split(' ')[0])
+            case 'disk':
+              return getFieldCn(row.spec.split(' ')[0])
+            default:
+              return '-'
+          }
         },
       },
       {

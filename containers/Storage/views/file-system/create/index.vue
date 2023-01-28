@@ -56,13 +56,20 @@
         <file-system-sku
         @update:options="skuChanged"
         ref="REF_SKU" />
-        <a-form-item :label="$t('storage.capacity')" v-bind="formItemLayout" v-if="skuOptions.step > 0">
-          <a-col :span="5">
-            <a-slider v-model="capacity" v-bind="skuOptions" />
-          </a-col>
-          <a-col :span="5">
-            <a-input-number v-model="capacity" v-bind="skuOptions" /> GB
-          </a-col>
+<!--        <a-form-item :label="$t('storage.capacity')" v-bind="formItemLayout" v-if="skuOptions.step > 0">-->
+<!--          <a-col :span="5">-->
+<!--            <a-slider v-model="capacity" v-bind="skuOptions" />-->
+<!--          </a-col>-->
+<!--          <a-col :span="5">-->
+<!--            <a-input-number v-model="capacity" v-bind="skuOptions" /> GB-->
+<!--          </a-col>-->
+<!--        </a-form-item>-->
+        <a-form-item :label="$t('storage.capacity')" v-if="this.cloudEnv === 'onpremise'">
+          <a-input name="capacity" style="width: 350px" v-decorator="decorators.capacity" @blur="handelBlur">
+            <a-select slot="addonAfter" style="width: 80px" v-decorator="decorators.capacity_unit">
+              <a-select-option v-for="item in sizeUnitOpts" :key="item.value" :value="item.value">{{item.label}}</a-select-option>
+            </a-select>
+          </a-input>
         </a-form-item>
 <!--        <a-form-item :label="$t('dictionary.zone')">-->
 <!--          <a-radio-group v-decorator="decorators.zone_id" @change="zoneChanged">-->
@@ -216,6 +223,19 @@ export default {
           initialValue: 'postpaid',
         },
       ],
+      capacity: [
+        'capacity',
+        {
+          initialValue: 10,
+          validateFirst: true,
+          rules: [
+            { required: true, message: this.$t('storage.text_136') },
+          ],
+        },
+      ],
+      capacity_unit: ['capacity_unit', {
+        initialValue: Math.pow(1024, 0),
+      }],
       tag: [
         'tag',
         {
@@ -237,7 +257,7 @@ export default {
       cloudEnvOptions,
       routerQuery: this.$route.query.type,
       cloudEnv: this.$route.query.type ? this.$route.query.type : cloudEnvOptions[0].key,
-      capacity: 0,
+      // capacity: 0,
       zones: [],
       formItemLayout: {
         wrapperCol: {
@@ -258,6 +278,11 @@ export default {
           xxl: { span: 21, offset: 3 },
         },
       },
+      sizeUnitOpts: [
+        { value: Math.pow(1024, 0), label: 'GB' },
+        { value: Math.pow(1024, 1), label: 'TB' },
+        { value: Math.pow(1024, 2), label: 'PB' },
+      ],
       vpcList: [],
     }
   },
@@ -302,13 +327,13 @@ export default {
     }
   },
   watch: {
-    capacity: {
-      handler (val) {
-        this.form.fc.setFieldsValue({
-          capacity: val,
-        })
-      },
-    },
+    // capacity: {
+    //   handler (val) {
+    //     this.form.fc.setFieldsValue({
+    //       capacity: val,
+    //     })
+    //   },
+    // },
     project_domain () {
       this.$refs.areaSelects.fetchs(this.areaselectsName)
     },
@@ -442,6 +467,19 @@ export default {
         scope: this.scope,
       }
       return params
+    },
+    handelBlur ({ target }) {
+      const { value, name } = target
+      if (!/^\d+$/.test(value)) {
+        this.form.fc.setFieldsValue({
+          [name]: 10,
+        })
+      }
+      if (value < 10) {
+        this.form.fc.setFieldsValue({
+          [name]: 10,
+        })
+      }
     },
     async handleValuesChange (fc, changedFields) {
       this.form.fd = {

@@ -23,6 +23,12 @@ export default {
                 title = 'mem - ' + i18n.t('bill.text_158')
                 // title = i18n.t('bill.text_158')
               }
+              if (type === 'filesystem') {
+                title = 'filesystem - ' + getFieldCn(row.model)
+              }
+              if (type === 'bucket') {
+                title = 'bucket - ' + getFieldCn(row.model)
+              }
               if (type === 'disk') {
                 title = 'disk - ' + getFieldCn(row.medium_type + ' - ' + row.storage_type)
               }

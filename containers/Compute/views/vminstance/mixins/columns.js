@@ -104,6 +104,14 @@ export default {
               onManager: this.onManager,
             }) }>{ this.$t('common.cancel') }</a>
 
+          const suffix = row.metadata.disk_change_storage || ''
+          if ((row.status === 'disk_change_storage' || row.status === 'ready') && suffix.length > 0) {
+            return [
+              <div class='d-flex align-items-center text-truncate'>
+                <status status={ row.status + '_' + suffix } statusModule='server' process={ row.progress } />
+              </div>,
+            ]
+          }
           return [
             <div class='d-flex align-items-center text-truncate'>
               <status status={ row.status } statusModule='server' process={ row.progress } />

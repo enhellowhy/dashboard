@@ -36,6 +36,7 @@
   "storage.text_35": "ZStack platform does not currently support this operation",
   "storage.text_36": "Delete",
   "storage.text_37": "Block Storage",
+  "storage.block.change": "Change Block Storage",
   "storage.text_38": "Storage type",
   "storage.text_39": "Media type",
   "storage.text_40": "Name",

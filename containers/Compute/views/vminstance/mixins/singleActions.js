@@ -805,6 +805,11 @@ export default {
                     const ret = {
                       validate: true,
                     }
+                    if (!this.isAdminMode && !this.isDomainMode) {
+                      ret.validate = false
+                      ret.tooltip = i18n.t('compute.text_1279', [i18n.t('dictionary.domain')])
+                      return ret
+                    }
                     if (obj.hypervisor !== typeClouds.hypervisorMap.kvm.key) {
                       ret.validate = false
                       ret.tooltip = i18n.t('compute.text_473', [PROVIDER_MAP[provider].label])

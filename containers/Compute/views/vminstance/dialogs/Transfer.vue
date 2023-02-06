@@ -41,6 +41,29 @@
             :dialog-params="{ title: $t('compute.text_111'), width: 1060 }"
             @change="hostChangeHandle" />
         </a-form-item>
+        <!-- 跨存储 -->
+        <a-form-item :label="$t('storage.block.change')" v-if="isSingle && firstData.status === 'ready'">
+          <!--        <a-form-item :label="$t('storage.text_37')" v-if="isSingle && firstData.status === 'ready'" :extra="$t('compute.text_1263')">-->
+          <a-switch :checkedChildren="$t('compute.text_115')" :unCheckedChildren="$t('compute.text_116')" v-decorator="decorators.storage_enable" @change="storageChangeHandle" :disabled="false" />
+        </a-form-item>
+        <a-form-item v-if="storageEnable">
+          <span slot="label">
+            {{ $t('storage.text_37') }}&nbsp;
+          </span>
+<!--          <base-select-->
+<!--            v-decorator="decorators.storage"-->
+<!--            :options="storages"-->
+<!--            :isDefaultSelect="true"-->
+<!--            :select-props="{ placeholder: $t('compute.text_1351') }" />-->
+          <a-select v-decorator="decorators.storage" :placeholder="$t('compute.text_1351')">
+            <a-select-option v-for="item in storages" :key="item.id">
+              <div class="d-flex">
+                <span class="text-truncate flex-fill mr-2" :title="item.name">{{ item.name }}</span>
+                <span style="width: 280px; color: rgb(132, 146, 166); font-size: 13px;">已使用/已分配/总量: {{ getSize(item.actual_capacity_used) }}/{{ getSize(item.used_capacity) }}/{{ getSize(item.capacity) }}</span>
+              </div>
+            </a-select-option>
+          </a-select>
+        </a-form-item>
         <template v-if="isKvm && isAllRunning">
           <a-form-item :label="$t('compute.vminstance.transfer.max_brand_width')">
             <migration-bandwidth :decorators="decorators" :form="form" />
@@ -66,6 +89,7 @@ import WindowsMixin from '@/mixins/windows'
 import ListSelect from '@/sections/ListSelect'
 import MigrationBandwidth from '@Compute/sections/MigrationBandwidth'
 import ResourceProps from '../mixins/resourceProps'
+import { findAndUnshift, sizestrWithUnit } from '@/utils/utils'
 
 export default {
   name: 'VmTransferDialog',
@@ -89,13 +113,16 @@ export default {
       },
       forcastData: null,
       hosts: [],
+      hostId: '',
+      storages: [],
+      storageEnable: false,
       message: '',
       decorators: {
         host: [
           'host',
           {
             rules: [
-              { required: false, message: this.$t('compute.text_314'), trigger: 'change' },
+              { required: true, message: this.$t('compute.text_314'), trigger: 'change' },
             ],
           },
         ],
@@ -111,6 +138,22 @@ export default {
           {
             initialValue: true,
             valuePropName: 'checked',
+          },
+        ],
+        storage_enable: [
+          'storage_enable',
+          {
+            initialValue: false,
+            valuePropName: 'checked',
+          },
+        ],
+        storage: [
+          'storage',
+          {
+            // initialValue: '',
+            rules: [
+              { required: true, message: this.$t('compute.text_1351'), trigger: 'change' },
+            ],
           },
         ],
         skip_cpu_check: [
@@ -252,7 +295,11 @@ export default {
       if (this.firstData.status === 'ready') {
         data.auto_start = values.auto_start
       }
-      if (this.firstData.status !== 'running') {
+      if (this.firstData.status === 'ready' && values.storage_enable) {
+        action = 'migrate-storage'
+        data.storage_enable = values.storage_enable
+        data.target_storage_id = values.storage
+      } else if (this.firstData.status !== 'running') {
         action = 'migrate'
       } else {
         action = 'live-migrate'
@@ -270,6 +317,9 @@ export default {
       if (values.rescue_mode) {
         action = 'migrate'
         data.rescue_mode = true
+        if (values.storage_enable) {
+          action = 'migrate-storage'
+        }
       }
       return this.params.onManager('performAction', {
         id: this.firstData.id,
@@ -279,6 +329,9 @@ export default {
           data,
         },
       })
+    },
+    getSize (capacity) {
+      return sizestrWithUnit(capacity, 'M', 1024)
     },
     doBatchTransfer (ids, values) {
       const data = {
@@ -339,6 +392,9 @@ export default {
     },
     rescueModeChangeHandle (v) {
       this.form.fc.setFieldsValue({ host: '' })
+      this.form.fc.setFieldsValue({ storage: '' })
+      this.storages = []
+      this.hostId = ''
       if (v) {
         this.forcastData = null
       } else {
@@ -351,6 +407,15 @@ export default {
       if (!this.isSingle) return
       this.queryForcastData(v)
     },
+    storageChangeHandle (v) {
+      this.form.fc.setFieldsValue({ storage: '' })
+      this.storageEnable = v
+      if (v) {
+        this.queryStorages()
+      } else {
+        // this.queryStorages()
+      }
+    },
     queryHosts () {
       const hostsManager = new this.$Manager('hosts')
       hostsManager.list({ params: this.hostsParams }).then((res) => {
@@ -360,7 +425,42 @@ export default {
         throw err
       })
     },
+    queryStorages () {
+      const storagesManager = new this.$Manager('storages')
+      if (!this.hostId) {
+        this.storages = []
+        return
+      }
+      const params = {
+        enabled: true,
+        host_id: this.hostId,
+        // share: true,
+        scope: 'system',
+      }
+      params.filter = ['storage_type.notin(nfs,baremetal)']
+      storagesManager.list({ params: params }).then((res) => {
+        this.storages = res.data.data || []
+        this.form.fc.setFieldsValue({ storage: '' })
+        if (this.storages.length > 0) {
+          this.storages = findAndUnshift(this.storages, item => item.storage_type === 'rbd')
+          this.form.fc.setFieldsValue({ storage: this.storages[0].id })
+        }
+      }).catch((err) => {
+        console.log(err)
+        throw err
+      })
+    },
     hostChangeHandle (hostId) {
+      console.log('hostia', hostId)
+      if (hostId) {
+        console.log('in hostia', hostId)
+        this.hostId = hostId
+        this.queryStorages()
+      } else {
+        this.storages = []
+        this.hostId = ''
+      }
+      this.form.fc.setFieldsValue({ storage: '' })
       const hostArr = this.params.data.filter(v => v.host_id === hostId)
       if (hostArr.length > 0) {
         this.message = this.$t('compute.transfer_mutiple_dialog_alert', [hostArr.length])

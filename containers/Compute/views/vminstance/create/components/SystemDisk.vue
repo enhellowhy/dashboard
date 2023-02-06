@@ -178,11 +178,15 @@ export default {
       }
       const localIndex = currentTypes.findIndex(item => item.includes('local'))
       const novaIndex = currentTypes.findIndex(item => item.includes('nova'))
+      const nfsIndex = currentTypes.findIndex(item => item.includes('nfs'))
       if (localIndex !== -1 && localIndex !== 0) { // 将local放置首位
         currentTypes = findAndUnshift(currentTypes, item => item.includes('local'))
       }
       if (novaIndex !== -1 && novaIndex !== (currentTypes.length - 1)) { // 将nova放置到最后
         currentTypes = findAndPush(currentTypes, item => item.includes('nova'))
+      }
+      if (nfsIndex !== -1) { // 将nfs去掉
+        currentTypes.splice(nfsIndex, 1)
       }
       for (let i = 0, len = currentTypes.length; i < len; i++) {
         const typeItemArr = currentTypes[i].split('/')
